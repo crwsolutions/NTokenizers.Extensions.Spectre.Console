@@ -20,7 +20,7 @@ internal class MarkupWriter(SpectreLib.IAnsiConsole ansiConsole)
         if (token.Metadata is ICodeBlockMetadata codeBlockMetadata)
         {
             var code = string.IsNullOrWhiteSpace(codeBlockMetadata.Language) ? "code" : codeBlockMetadata.Language;
-            ansiConsole.Write(new SpectreLib.Text($"{code}:"));
+            ansiConsole.Write(new SpectreLib.Text($"{code}:\n"));
         }
         if (token.Metadata is HeadingMetadata meta)
         {
