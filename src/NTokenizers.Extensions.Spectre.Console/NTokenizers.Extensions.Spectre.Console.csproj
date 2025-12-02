@@ -10,17 +10,17 @@
     <!-- NuGet package metadata -->
     <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
  	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>0.3-$(VersionSuffix)</Version>
+	<Version>0.4-$(VersionSuffix)</Version>
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markup, TypeScript, C# and SQL), Style-rich console syntax highlighting</Description>
     <PackageDescription>Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markup, TypeScript, C# and SQL), Style-rich console syntax highlighting</PackageDescription>
     <PackageTags>tokenizer;xml;json;md;markup;typescript;c#;csharp;sql; stream;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
-    <RepositoryUrl>https://github.com/crwsolutions/ntokenizers</RepositoryUrl>
+    <RepositoryUrl>https://github.com/crwsolutions/NTokenizers.Extensions.Spectre.Console</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://crwsolutions.github.io/ntokenizers</PackageProjectUrl>
+    <PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
     <Title>NTokenizers.Extensions.Spectre.Console</Title>
     <PackageReleaseNotes>Initial release of Spectre.Console extensions for NTokenizers</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

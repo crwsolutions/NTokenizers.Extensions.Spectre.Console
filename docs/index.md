@@ -3,9 +3,9 @@ layout: default
 title: "Home"
 ---
 
-# NTokenizers Documentation
+# NTokenizers.Extensions.Spectre.Console Documentation
 
-Welcome to the documentation for the `NTokenizers` library. This library provides Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markup, TypeScript, C# and SQL), Style-rich console syntax highlighting.
+Welcome to the documentation for the `NTokenizers.Extensions.Spectre.Console` library. This library provides a NTokenizers rendering extension for Spectre.Console. This packages renders Style-rich console syntax highlighting for XML, JSON, Markup, TypeScript, C# and SQL.
 
 This library builds on:
 - **[Spectre.Console](https://spectreconsole.net/)** for advanced console rendering
