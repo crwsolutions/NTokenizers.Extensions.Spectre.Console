@@ -1,4 +1,4 @@
-﻿# Spectre.Console.Extensions.NTokenizers
+﻿# NTokenizers.Extensions.Spectre.Console
 Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markup, TypeScript, C# and SQL), Style-rich console syntax highlighting
 
 This library builds on:

@@ -1,0 +1,66 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console", "src\NTokenizers.Extensions.Spectre.Console\NTokenizers.Extensions.Spectre.Console.csproj", "{8237B2E0-B596-BB0D-1258-A0E1D3E1EA56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp\NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp.csproj", "{872EDB56-6FC9-40D6-DA85-E168A3D5117F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Json", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Json\NTokenizers.Extensions.Spectre.Console.ShowCase.Json.csproj", "{2F61640E-70CB-DEA0-C9F6-6A36B807364A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Markup", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Markup\NTokenizers.Extensions.Spectre.Console.ShowCase.Markup.csproj", "{2C62DD7A-4B6D-F1C4-B267-165257BF90EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Sql", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Sql\NTokenizers.Extensions.Spectre.Console.ShowCase.Sql.csproj", "{2759C9A3-A558-F61F-BB67-704CFD1BAF34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript\NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript.csproj", "{AADD2817-ED83-1061-C352-FF1A00B1757C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Xml", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Xml\NTokenizers.Extensions.Spectre.Console.ShowCase.Xml.csproj", "{FA8A4B13-816D-D303-ACA3-53924F1597D4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8237B2E0-B596-BB0D-1258-A0E1D3E1EA56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8237B2E0-B596-BB0D-1258-A0E1D3E1EA56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8237B2E0-B596-BB0D-1258-A0E1D3E1EA56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8237B2E0-B596-BB0D-1258-A0E1D3E1EA56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872EDB56-6FC9-40D6-DA85-E168A3D5117F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872EDB56-6FC9-40D6-DA85-E168A3D5117F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872EDB56-6FC9-40D6-DA85-E168A3D5117F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872EDB56-6FC9-40D6-DA85-E168A3D5117F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F61640E-70CB-DEA0-C9F6-6A36B807364A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F61640E-70CB-DEA0-C9F6-6A36B807364A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F61640E-70CB-DEA0-C9F6-6A36B807364A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F61640E-70CB-DEA0-C9F6-6A36B807364A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C62DD7A-4B6D-F1C4-B267-165257BF90EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C62DD7A-4B6D-F1C4-B267-165257BF90EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C62DD7A-4B6D-F1C4-B267-165257BF90EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C62DD7A-4B6D-F1C4-B267-165257BF90EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2759C9A3-A558-F61F-BB67-704CFD1BAF34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2759C9A3-A558-F61F-BB67-704CFD1BAF34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2759C9A3-A558-F61F-BB67-704CFD1BAF34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2759C9A3-A558-F61F-BB67-704CFD1BAF34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AADD2817-ED83-1061-C352-FF1A00B1757C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AADD2817-ED83-1061-C352-FF1A00B1757C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AADD2817-ED83-1061-C352-FF1A00B1757C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AADD2817-ED83-1061-C352-FF1A00B1757C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA8A4B13-816D-D303-ACA3-53924F1597D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA8A4B13-816D-D303-ACA3-53924F1597D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA8A4B13-816D-D303-ACA3-53924F1597D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA8A4B13-816D-D303-ACA3-53924F1597D4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0093846F-8D17-43D5-B871-6AF8DC13CEE8}
+	EndGlobalSection
+EndGlobal
