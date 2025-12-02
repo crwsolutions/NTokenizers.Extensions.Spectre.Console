@@ -1,11 +1,19 @@
-﻿# Spectre.Console.Extensions.NTokenizers
-Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markup, TypeScript, C# and SQL), Style-rich console syntax highlighting
+﻿---
+layout: default
+title: "Home"
+---
+
+# NTokenizers Documentation
+
+Welcome to the documentation for the `NTokenizers` library. This library provides Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markup, TypeScript, C# and SQL), Style-rich console syntax highlighting.
 
 This library builds on:
 - **[Spectre.Console](https://spectreconsole.net/)** for advanced console rendering
 - **[NTokenizers](https://github.com/crwsolutions/NTokenizers)** for modular, stream‑based tokenization
 
 Together, they enable expressive syntax highlighting directly in the console.
+
+## Example Usage
 
 ```csharp
 await AnsiConsole.Console.WriteMarkupTextAsync(stream);

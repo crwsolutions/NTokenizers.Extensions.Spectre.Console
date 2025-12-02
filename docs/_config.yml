@@ -1,0 +1,26 @@
+
+title: NTokenizers
+description: Documentation for the NTokenizers library
+markdown: kramdown
+
+# Sidebar configuration
+sidebar:
+  nav:
+    - title: "Home"
+      url: "/ntokenizers"
+    - title: "C#"
+      url: "csharp"
+    - title: "Json"
+      url: "json"
+    - title: "Markup"
+      url: "markup"
+    - title: "Sql"
+      url: "sql"
+    - title: "Typescript"
+      url: "typescript"
+    - title: "Xml"
+      url: "xml"
+
+# Breadcrumb
+breadcrumb_home_label : "Home"
+breadcrumb_separator  : ">"

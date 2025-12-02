@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | relative_url }}">
+</head>
+<body>
+    <div class="container">
+        <aside>
+            <nav>
+                <ul>
+                    {% for item in site.sidebar.nav %}
+                    <li><a href="{{ item.url }}">{{ item.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </nav>
+            <p><a href="https://www.nuget.org/packages/NTokenizers"><img alt="NuGet Version" src="https://img.shields.io/nuget/vpre/NTokenizers?style=flat"></a></p>
+            <p><a href="https://github.com/crwsolutions/ntokenizers"><img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/crwsolutions/ntokenizers?label=github"></a></p>
+        </aside>
+        <main>
+            {{ content }}
+        </main>
+    </div>
+</body>
+</html>
