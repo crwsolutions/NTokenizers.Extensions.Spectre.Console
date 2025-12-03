@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NTokenizers.Extensions.Spectre.Console.ShowCase.Ai;
 
 Console.WriteLine();
-System.Console.ReadLine();
+//Console.ReadLine();
 
 Console.OutputEncoding = Encoding.UTF8;
 Console.InputEncoding = Encoding.UTF8;
