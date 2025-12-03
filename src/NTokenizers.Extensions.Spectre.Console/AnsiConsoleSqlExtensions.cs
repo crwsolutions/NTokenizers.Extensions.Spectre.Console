@@ -20,7 +20,7 @@ public static class AnsiConsoleSqlExtensions
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing SQL content.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task WriteSqlAsync(this IAnsiConsole ansiConsole, Stream stream) =>
+    public static async Task<string> WriteSqlAsync(this IAnsiConsole ansiConsole, Stream stream) =>
         await WriteSqlAsync(ansiConsole, stream, SqlStyles.Default);
 
     /// <summary>
@@ -30,10 +30,10 @@ public static class AnsiConsoleSqlExtensions
     /// <param name="stream">The stream containing SQL content.</param>
     /// <param name="sqlStyles">The SQL styles to use for syntax highlighting.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task WriteSqlAsync(this IAnsiConsole ansiConsole, Stream stream, SqlStyles sqlStyles)
+    public static async Task<string> WriteSqlAsync(this IAnsiConsole ansiConsole, Stream stream, SqlStyles sqlStyles)
     {
         var sqlWriter = new SqlWriter(ansiConsole, sqlStyles);
-        await SqlTokenizer.Create().ParseAsync(
+        return await SqlTokenizer.Create().ParseAsync(
             stream,
             sqlWriter.WriteToken
         );
@@ -44,7 +44,8 @@ public static class AnsiConsoleSqlExtensions
     /// </summary>
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing SQL content.</param>
-    public static void WriteSql(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>The processed SQL content as a string.</returns>
+    public static string WriteSql(this IAnsiConsole ansiConsole, Stream stream) =>
         WriteSql(ansiConsole, stream, SqlStyles.Default);
 
     /// <summary>
@@ -53,10 +54,11 @@ public static class AnsiConsoleSqlExtensions
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing SQL content.</param>
     /// <param name="sqlStyles">The SQL styles to use for syntax highlighting.</param>
-    public static void WriteSql(this IAnsiConsole ansiConsole, Stream stream, SqlStyles sqlStyles)
+    /// <returns>The processed SQL content as a string.</returns>
+    public static string WriteSql(this IAnsiConsole ansiConsole, Stream stream, SqlStyles sqlStyles)
     {
         var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles));
-        t.GetAwaiter().GetResult();
+        return t.GetAwaiter().GetResult();
     }
 
     /// <summary>

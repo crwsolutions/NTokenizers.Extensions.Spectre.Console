@@ -17,8 +17,8 @@ public static class AnsiConsoleJsonExtensions
     /// </summary>
     /// <param name="ansiConsole">The console to write to.</param>
     /// <param name="stream">The stream containing JSON content.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>The JSON content as a string.</returns>
+    public static async Task<string> WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream) =>
         await WriteJsonAsync(ansiConsole, stream, JsonStyles.Default);
 
     /// <summary>
@@ -27,11 +27,11 @@ public static class AnsiConsoleJsonExtensions
     /// <param name="ansiConsole">The console to write to.</param>
     /// <param name="stream">The stream containing JSON content.</param>
     /// <param name="jsonStyles">The styles to use for JSON token coloring.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream, JsonStyles jsonStyles)
+    /// <returns>The JSON content as a string.</returns>
+    public static async Task<string> WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream, JsonStyles jsonStyles)
     {
         var jsonWriter = new JsonWriter(ansiConsole, jsonStyles);
-        await JsonTokenizer.Create().ParseAsync(
+        return await JsonTokenizer.Create().ParseAsync(
             stream,
             jsonWriter.WriteToken
         );
@@ -42,7 +42,8 @@ public static class AnsiConsoleJsonExtensions
     /// </summary>
     /// <param name="ansiConsole">The console to write to.</param>
     /// <param name="stream">The stream containing JSON content.</param>
-    public static void WriteJson(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>The JSON content as a string.</returns>
+    public static string WriteJson(this IAnsiConsole ansiConsole, Stream stream) =>
         WriteJson(ansiConsole, stream, JsonStyles.Default);
 
     /// <summary>
@@ -51,10 +52,11 @@ public static class AnsiConsoleJsonExtensions
     /// <param name="ansiConsole">The console to write to.</param>
     /// <param name="stream">The stream containing JSON content.</param>
     /// <param name="jsonStyles">The styles to use for JSON token coloring.</param>
-    public static void WriteJson(this IAnsiConsole ansiConsole, Stream stream, JsonStyles jsonStyles)
+    /// <returns>The JSON content as a string.</returns>
+    public static string WriteJson(this IAnsiConsole ansiConsole, Stream stream, JsonStyles jsonStyles)
     {
         var t = Task.Run(() => WriteJsonAsync(ansiConsole, stream, jsonStyles));
-        t.GetAwaiter().GetResult();
+        return t.GetAwaiter().GetResult();
     }
 
     /// <summary>

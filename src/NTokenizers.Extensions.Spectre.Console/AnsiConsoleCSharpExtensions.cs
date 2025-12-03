@@ -15,48 +15,50 @@ namespace NTokenizers.Extensions.Spectre.Console;
 public static class AnsiConsoleCSharpExtensions
 {
     /// <summary>
-    /// Writes C# code to the console with syntax highlighting using default styles.
+    /// Writes C# code to the console with syntax highlighting using default styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The stream containing C# code to render.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task WriteCSharpAsync(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>A task representing the asynchronous operation with the parsed string.</returns>
+    public static async Task<string> WriteCSharpAsync(this IAnsiConsole ansiConsole, Stream stream) =>
         await WriteCSharpAsync(ansiConsole, stream, CSharpStyles.Default);
 
     /// <summary>
-    /// Writes C# code to the console with syntax highlighting using the specified styles.
+    /// Writes C# code to the console with syntax highlighting using the specified styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The stream containing C# code to render.</param>
     /// <param name="csharpStyles">The styles to use for syntax highlighting.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task WriteCSharpAsync(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles csharpStyles)
+    /// <returns>A task representing the asynchronous operation with the parsed string.</returns>
+    public static async Task<string> WriteCSharpAsync(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles csharpStyles)
     {
         var csharpWriter = new CSharpWriter(ansiConsole, csharpStyles);
-        await CSharpTokenizer.Create().ParseAsync(
+        return await CSharpTokenizer.Create().ParseAsync(
             stream,
             csharpWriter.WriteToken
         );
     }
 
     /// <summary>
-    /// Writes C# code to the console with syntax highlighting using default styles.
+    /// Writes C# code to the console with syntax highlighting using default styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The stream containing C# code to render.</param>
-    public static void WriteCSharp(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>The parsed string.</returns>
+    public static string WriteCSharp(this IAnsiConsole ansiConsole, Stream stream) =>
         WriteCSharp(ansiConsole, stream, CSharpStyles.Default);
 
     /// <summary>
-    /// Writes C# code to the console with syntax highlighting using the specified styles.
+    /// Writes C# code to the console with syntax highlighting using the specified styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The stream containing C# code to render.</param>
     /// <param name="csharpStyles">The styles to use for syntax highlighting.</param>
-    public static void WriteCSharp(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles csharpStyles)
+    /// <returns>The parsed string.</returns>
+    public static string WriteCSharp(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles csharpStyles)
     {
         var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles));
-        t.GetAwaiter().GetResult();
+        return t.GetAwaiter().GetResult();
     }
 
     /// <summary>

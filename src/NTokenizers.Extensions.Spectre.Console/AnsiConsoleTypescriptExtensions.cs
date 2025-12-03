@@ -19,8 +19,8 @@ public static class AnsiConsoleTypescriptExtensions
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public static async Task WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>A task that represents the asynchronous operation. The result is the input stream as a string.</returns>
+    public static async Task<string> WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream) =>
         await WriteTypescriptAsync(ansiConsole, stream, TypescriptStyles.Default);
 
     /// <summary>
@@ -29,11 +29,11 @@ public static class AnsiConsoleTypescriptExtensions
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
     /// <param name="typescriptStyles">The <see cref="TypescriptStyles"/> to use for styling.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public static async Task WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles typescriptStyles)
+    /// <returns>A task that represents the asynchronous operation. The result is the input stream as a string.</returns>
+    public static async Task<string> WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles typescriptStyles)
     {
         var typescriptWriter = new TypescriptWriter(ansiConsole, typescriptStyles);
-        await TypescriptTokenizer.Create().ParseAsync(
+        return await TypescriptTokenizer.Create().ParseAsync(
             stream,
             typescriptWriter.WriteToken
         );
@@ -44,7 +44,8 @@ public static class AnsiConsoleTypescriptExtensions
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
-    public static void WriteTypescript(this IAnsiConsole ansiConsole, Stream stream) =>
+    /// <returns>The input stream as a string.</returns>
+    public static string WriteTypescript(this IAnsiConsole ansiConsole, Stream stream) =>
         WriteTypescript(ansiConsole, stream, TypescriptStyles.Default);
 
     /// <summary>
@@ -53,10 +54,11 @@ public static class AnsiConsoleTypescriptExtensions
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
     /// <param name="typescriptStyles">The <see cref="TypescriptStyles"/> to use for styling.</param>
-    public static void WriteTypescript(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles typescriptStyles)
+    /// <returns>The input stream as a string.</returns>
+    public static string WriteTypescript(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles typescriptStyles)
     {
         var t = Task.Run(() => WriteTypescriptAsync(ansiConsole, stream, typescriptStyles));
-        t.GetAwaiter().GetResult();
+        return t.GetAwaiter().GetResult();
     }
 
     /// <summary>

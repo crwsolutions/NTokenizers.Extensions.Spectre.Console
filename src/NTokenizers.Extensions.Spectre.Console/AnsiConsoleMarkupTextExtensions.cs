@@ -15,49 +15,51 @@ namespace NTokenizers.Extensions.Spectre.Console;
 public static class AnsiConsoleMarkupTextExtensions
 {
     /// <summary>
-    /// Writes markup text to the console asynchronously using default markup styles.
+    /// Writes markup text to the console asynchronously using default markup styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing the markup text.</param>
-    /// <returns>A task that represents the asynchronous write operation.</returns>
-    public static async Task WriteMarkupTextAsync(this IAnsiConsole ansiConsole, Stream stream) => 
+    /// <returns>A task that represents the asynchronous write operation and contains the parsed string.</returns>
+    public static async Task<string> WriteMarkupTextAsync(this IAnsiConsole ansiConsole, Stream stream) =>
         await WriteMarkupTextAsync(ansiConsole, stream, MarkupStyles.Default);
 
     /// <summary>
-    /// Writes markup text to the console asynchronously using specified markup styles.
+    /// Writes markup text to the console asynchronously using specified markup styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing the markup text.</param>
     /// <param name="markupStyles">The markup styles to use for rendering.</param>
-    /// <returns>A task that represents the asynchronous write operation.</returns>
-    public static async Task WriteMarkupTextAsync(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles markupStyles)
+    /// <returns>A task that represents the asynchronous write operation and contains the parsed string.</returns>
+    public static async Task<string> WriteMarkupTextAsync(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles markupStyles)
     {
         var markupWriter = MarkupWriter.Create(ansiConsole);
         MarkupWriter.MarkupStyles = markupStyles;
-        await MarkupTokenizer.Create().ParseAsync(
+        return await MarkupTokenizer.Create().ParseAsync(
             stream,
             async token => await markupWriter.WriteAsync(token)
         );
     }
 
     /// <summary>
-    /// Writes markup text to the console synchronously using default markup styles.
+    /// Writes markup text to the console synchronously using default markup styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing the markup text.</param>
-    public static void WriteMarkupText(this IAnsiConsole ansiConsole, Stream stream) => 
+    /// <returns>The parsed string from the input stream.</returns>
+    public static string WriteMarkupText(this IAnsiConsole ansiConsole, Stream stream) =>
         WriteMarkupText(ansiConsole, stream, MarkupStyles.Default);
 
     /// <summary>
-    /// Writes markup text to the console synchronously using specified markup styles.
+    /// Writes markup text to the console synchronously using specified markup styles and returns the parsed string.
     /// </summary>
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing the markup text.</param>
     /// <param name="markupStyles">The markup styles to use for rendering.</param>
-    public static void WriteMarkupText(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles markupStyles)
+    /// <returns>The parsed string from the input stream.</returns>
+    public static string WriteMarkupText(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles markupStyles)
     {
-        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream));
-        t.GetAwaiter().GetResult();
+        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles));
+        return t.GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -77,7 +79,7 @@ public static class AnsiConsoleMarkupTextExtensions
     public static void WriteMarkupText(this IAnsiConsole ansiConsole, string value, MarkupStyles markupStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream));
+        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles));
         t.GetAwaiter().GetResult();
     }
 }
