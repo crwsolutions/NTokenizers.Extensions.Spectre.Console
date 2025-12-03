@@ -5,12 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     
     <!-- NuGet package metadata -->
     <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
  	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>0.4-$(VersionSuffix)</Version>
+	<Version>0.5-$(VersionSuffix)</Version>
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
