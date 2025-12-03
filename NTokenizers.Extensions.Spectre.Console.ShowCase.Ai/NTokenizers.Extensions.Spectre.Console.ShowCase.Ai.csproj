@@ -20,11 +20,10 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OllamaSharp" Version="5.3.4" />
+		<PackageReference Include="OllamaSharp" Version="5.4.11" />
 		<PackageReference Include="SourceDepend" Version="1.0.0" />
-		<PackageReference Include="Microsoft.Extensions.AI" Version="9.7.1" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
+		<PackageReference Include="Microsoft.Extensions.AI" Version="9.10.2" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.11" />
 	</ItemGroup>
 
 </Project>
