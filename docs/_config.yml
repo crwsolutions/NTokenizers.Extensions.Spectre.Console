@@ -20,6 +20,8 @@ sidebar:
       url: "typescript"
     - title: "Xml"
       url: "xml"
+    - title: "AI Example"
+      url: "ai"
 
 # Breadcrumb
 breadcrumb_home_label : "Home"
