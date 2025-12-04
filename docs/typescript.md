@@ -3,9 +3,11 @@ layout: default
 title: "Typescript"
 ---
 
-# TypeScript Syntax Highlighting
+# TypeScript/ Javascript Syntax Highlighting
 
 The `AnsiConsoleTypescriptExtensions` class provides extension methods for `IAnsiConsole` to render TypeScript code with syntax highlighting.
+
+> This Typescript writer also supports JavaScript since TypeScript is a superset of JavaScript.
 
 ## Methods
 
