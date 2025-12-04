@@ -115,8 +115,8 @@ var typescriptCode = """
     string with embedded \`special characters\`.`;
 
     function greet(name: string) {
-        // String with single quotes and escaping
-        const greeting = 'Hi, \'${name}\'!';
+        // Template literal for string interpolation
+        const greeting = `Hi, ${name}!`;
         return greeting;
     }
 
