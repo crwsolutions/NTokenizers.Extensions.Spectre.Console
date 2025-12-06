@@ -28,6 +28,14 @@ public partial class ChatService
                 break;
             }
 
+            if (string.Equals(userPrompt, "clear", StringComparison.OrdinalIgnoreCase))
+            {
+                chatHistory.Clear();
+                AnsiConsole.MarkupLine("[darkorange3_1]Cleared the history 🧹[/]");
+                System.Console.WriteLine();
+                continue;
+            }
+
             chatHistory.Add(new ChatMessage(ChatRole.User, userPrompt));
 
             var stream = GetChatResponseStream(_chatClient, chatHistory, chatOptions);
