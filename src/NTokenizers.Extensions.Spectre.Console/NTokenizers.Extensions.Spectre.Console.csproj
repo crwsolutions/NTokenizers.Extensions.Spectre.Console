@@ -9,7 +9,7 @@
     <!-- NuGet package metadata -->
     <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
  	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>0.6-$(VersionSuffix)</Version>
+	<Version>0.7-$(VersionSuffix)</Version>
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,7 +21,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
     <Title>NTokenizers.Extensions.Spectre.Console</Title>
-    <PackageReleaseNotes>Initial release of Spectre.Console extensions for NTokenizers</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated NTokenizers to 0.8.0-preview</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
