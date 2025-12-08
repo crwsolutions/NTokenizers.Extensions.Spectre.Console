@@ -5,24 +5,12 @@ using System.Text;
 using Spectre.Console;
 
 namespace NTokenizers.Extensions.Spectre.Console;
+
 /// <summary>
 /// Provides extension methods for <see cref="IAnsiConsole"/> to render XML content with syntax highlighting.
 /// </summary>
-/// <remarks>
-/// This class offers methods to display XML content in the console with rich styling and syntax highlighting,
-/// leveraging the NTokenizers library for parsing and Spectre.Console for rendering.
-/// </remarks>
 public static class AnsiConsoleXmlExtensions
 {
-    /// <summary>
-    /// Writes XML content from a stream to the console with default styling.
-    /// </summary>
-    /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
-    /// <param name="stream">The <see cref="Stream"/> containing the XML content.</param>
-    /// <returns>A task that represents the asynchronous operation. The result is the input stream as a string.</returns>
-    public static async Task<string> WriteXmlAsync(this IAnsiConsole ansiConsole, Stream stream) => 
-        await WriteXmlAsync(ansiConsole, stream, XmlStyles.Default);
-
     /// <summary>
     /// Writes XML content from a stream to the console with custom styling.
     /// </summary>
@@ -30,9 +18,9 @@ public static class AnsiConsoleXmlExtensions
     /// <param name="stream">The <see cref="Stream"/> containing the XML content.</param>
     /// <param name="xmlStyles">The <see cref="XmlStyles"/> to use for styling the output.</param>
     /// <returns>A task that represents the asynchronous operation. The result is the input stream as a string.</returns>
-    public static async Task<string> WriteXmlAsync(this IAnsiConsole ansiConsole, Stream stream, XmlStyles xmlStyles)
+    public static async Task<string> WriteXmlAsync(this IAnsiConsole ansiConsole, Stream stream, XmlStyles? xmlStyles = null)
     {
-        var xmlWriter = new XmlWriter(ansiConsole, xmlStyles);
+        var xmlWriter = new XmlWriter(ansiConsole, xmlStyles ?? XmlStyles.Default);
         return await XmlTokenizer.Create().ParseAsync(
             stream,
             xmlWriter.WriteToken
@@ -40,22 +28,13 @@ public static class AnsiConsoleXmlExtensions
     }
 
     /// <summary>
-    /// Writes XML content from a stream to the console with default styling.
-    /// </summary>
-    /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
-    /// <param name="stream">The <see cref="Stream"/> containing the XML content.</param>
-    /// <returns>The input stream as a string.</returns>
-    public static string WriteXml(this IAnsiConsole ansiConsole, Stream stream) => 
-        WriteXml(ansiConsole, stream, XmlStyles.Default);
-
-    /// <summary>
     /// Writes XML content from a stream to the console with custom styling.
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The <see cref="Stream"/> containing the XML content.</param>
     /// <param name="xmlStyles">The <see cref="XmlStyles"/> to use for styling the output.</param>
     /// <returns>The input stream as a string.</returns>
-    public static string WriteXml(this IAnsiConsole ansiConsole, Stream stream, XmlStyles xmlStyles)
+    public static string WriteXml(this IAnsiConsole ansiConsole, Stream stream, XmlStyles? xmlStyles = null)
     {
         var t = Task.Run(() => WriteXmlAsync(ansiConsole, stream, xmlStyles));
         return t.GetAwaiter().GetResult();

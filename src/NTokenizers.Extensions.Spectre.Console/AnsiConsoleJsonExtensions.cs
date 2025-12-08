@@ -5,6 +5,7 @@ using System.Text;
 using Spectre.Console;
 
 namespace NTokenizers.Extensions.Spectre.Console;
+
 /// <summary>
 /// Provides extension methods for writing JSON content to the console with syntax highlighting.
 /// This class enables style-rich console output for JSON data using the Spectre.Console library
@@ -13,24 +14,15 @@ namespace NTokenizers.Extensions.Spectre.Console;
 public static class AnsiConsoleJsonExtensions
 {
     /// <summary>
-    /// Writes JSON content from a stream to the console with default styling.
-    /// </summary>
-    /// <param name="ansiConsole">The console to write to.</param>
-    /// <param name="stream">The stream containing JSON content.</param>
-    /// <returns>The JSON content as a string.</returns>
-    public static async Task<string> WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream) =>
-        await WriteJsonAsync(ansiConsole, stream, JsonStyles.Default);
-
-    /// <summary>
     /// Writes JSON content from a stream to the console with custom styling.
     /// </summary>
     /// <param name="ansiConsole">The console to write to.</param>
     /// <param name="stream">The stream containing JSON content.</param>
     /// <param name="jsonStyles">The styles to use for JSON token coloring.</param>
     /// <returns>The JSON content as a string.</returns>
-    public static async Task<string> WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream, JsonStyles jsonStyles)
+    public static async Task<string> WriteJsonAsync(this IAnsiConsole ansiConsole, Stream stream, JsonStyles? jsonStyles = null)
     {
-        var jsonWriter = new JsonWriter(ansiConsole, jsonStyles);
+        var jsonWriter = new JsonWriter(ansiConsole, jsonStyles ?? JsonStyles.Default);
         return await JsonTokenizer.Create().ParseAsync(
             stream,
             jsonWriter.WriteToken
@@ -38,22 +30,13 @@ public static class AnsiConsoleJsonExtensions
     }
 
     /// <summary>
-    /// Writes JSON content from a stream to the console with default styling.
-    /// </summary>
-    /// <param name="ansiConsole">The console to write to.</param>
-    /// <param name="stream">The stream containing JSON content.</param>
-    /// <returns>The JSON content as a string.</returns>
-    public static string WriteJson(this IAnsiConsole ansiConsole, Stream stream) =>
-        WriteJson(ansiConsole, stream, JsonStyles.Default);
-
-    /// <summary>
     /// Writes JSON content from a stream to the console with custom styling.
     /// </summary>
     /// <param name="ansiConsole">The console to write to.</param>
     /// <param name="stream">The stream containing JSON content.</param>
     /// <param name="jsonStyles">The styles to use for JSON token coloring.</param>
     /// <returns>The JSON content as a string.</returns>
-    public static string WriteJson(this IAnsiConsole ansiConsole, Stream stream, JsonStyles jsonStyles)
+    public static string WriteJson(this IAnsiConsole ansiConsole, Stream stream, JsonStyles? jsonStyles = null)
     {
         var t = Task.Run(() => WriteJsonAsync(ansiConsole, stream, jsonStyles));
         return t.GetAwaiter().GetResult();

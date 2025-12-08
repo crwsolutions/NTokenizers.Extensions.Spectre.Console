@@ -5,24 +5,12 @@ using System.Text;
 using Spectre.Console;
 
 namespace NTokenizers.Extensions.Spectre.Console;
+
 /// <summary>
 /// Provides extension methods for <see cref="IAnsiConsole"/> to render TypeScript code with syntax highlighting.
 /// </summary>
-/// <remarks>
-/// This class offers methods to write TypeScript code to the console with rich syntax highlighting
-/// using the NTokenizers library for tokenization and Spectre.Console for rendering.
-/// </remarks>
 public static class AnsiConsoleTypescriptExtensions
 {
-    /// <summary>
-    /// Writes TypeScript code from a stream to the console with default styling.
-    /// </summary>
-    /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
-    /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
-    /// <returns>A task that represents the asynchronous operation. The result is the input stream as a string.</returns>
-    public static async Task<string> WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream) =>
-        await WriteTypescriptAsync(ansiConsole, stream, TypescriptStyles.Default);
-
     /// <summary>
     /// Writes TypeScript code from a stream to the console with custom styling.
     /// </summary>
@@ -30,9 +18,9 @@ public static class AnsiConsoleTypescriptExtensions
     /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
     /// <param name="typescriptStyles">The <see cref="TypescriptStyles"/> to use for styling.</param>
     /// <returns>A task that represents the asynchronous operation. The result is the input stream as a string.</returns>
-    public static async Task<string> WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles typescriptStyles)
+    public static async Task<string> WriteTypescriptAsync(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles? typescriptStyles = null)
     {
-        var typescriptWriter = new TypescriptWriter(ansiConsole, typescriptStyles);
+        var typescriptWriter = new TypescriptWriter(ansiConsole, typescriptStyles ?? TypescriptStyles.Default);
         return await TypescriptTokenizer.Create().ParseAsync(
             stream,
             typescriptWriter.WriteToken
@@ -40,22 +28,13 @@ public static class AnsiConsoleTypescriptExtensions
     }
 
     /// <summary>
-    /// Writes TypeScript code from a stream to the console with default styling.
-    /// </summary>
-    /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
-    /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
-    /// <returns>The input stream as a string.</returns>
-    public static string WriteTypescript(this IAnsiConsole ansiConsole, Stream stream) =>
-        WriteTypescript(ansiConsole, stream, TypescriptStyles.Default);
-
-    /// <summary>
     /// Writes TypeScript code from a stream to the console with custom styling.
     /// </summary>
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The <see cref="Stream"/> containing TypeScript code.</param>
     /// <param name="typescriptStyles">The <see cref="TypescriptStyles"/> to use for styling.</param>
     /// <returns>The input stream as a string.</returns>
-    public static string WriteTypescript(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles typescriptStyles)
+    public static string WriteTypescript(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles? typescriptStyles = null)
     {
         var t = Task.Run(() => WriteTypescriptAsync(ansiConsole, stream, typescriptStyles));
         return t.GetAwaiter().GetResult();
