@@ -17,15 +17,32 @@ public static class AnsiConsoleMarkupTextExtensions
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing the markup text.</param>
     /// <param name="markupStyles">The markup styles to use for rendering.</param>
+    /// <param name="encoding">The character encoding to use. If null, encoding will be detected from the stream's byte order mark (BOM).</param>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous write operation and contains the parsed string.</returns>
-    public static async Task<string> WriteMarkupTextAsync(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles? markupStyles = null)
+    public static async Task<string> WriteMarkupTextAsync(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles? markupStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
         var markupWriter = MarkupWriter.Create(ansiConsole);
         MarkupWriter.MarkupStyles = markupStyles ?? MarkupStyles.Default;
-        return await MarkupTokenizer.Create().ParseAsync(
-            stream,
-            async token => await markupWriter.WriteAsync(token)
-        );
+        if (encoding is null)
+        {
+            // Call overload without encoding to preserve BOM detection
+            return await MarkupTokenizer.Create().ParseAsync(
+                stream,
+                ct,
+                async token => await markupWriter.WriteAsync(token)
+            );
+        }
+        else
+        {
+            // Call overload with encoding and cancellation token
+            return await MarkupTokenizer.Create().ParseAsync(
+                stream,
+                encoding,
+                ct,
+                async token => await markupWriter.WriteAsync(token)
+            );
+        }
     }
 
     /// <summary>
@@ -34,10 +51,12 @@ public static class AnsiConsoleMarkupTextExtensions
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing the markup text.</param>
     /// <param name="markupStyles">The markup styles to use for rendering.</param>
+    /// <param name="encoding">The character encoding to use. If null, encoding will be detected from the stream's byte order mark (BOM).</param>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>The parsed string from the input stream.</returns>
-    public static string WriteMarkupText(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles? markupStyles = null)
+    public static string WriteMarkupText(this IAnsiConsole ansiConsole, Stream stream, MarkupStyles? markupStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles));
+        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles, encoding, ct), ct);
         return t.GetAwaiter().GetResult();
     }
 
@@ -58,7 +77,7 @@ public static class AnsiConsoleMarkupTextExtensions
     public static void WriteMarkupText(this IAnsiConsole ansiConsole, string value, MarkupStyles markupStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles));
+        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles, null, default));
         t.GetAwaiter().GetResult();
     }
 }

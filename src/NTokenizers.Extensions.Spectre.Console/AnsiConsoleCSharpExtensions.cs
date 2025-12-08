@@ -17,14 +17,31 @@ public static class AnsiConsoleCSharpExtensions
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The stream containing C# code to render.</param>
     /// <param name="csharpStyles">The styles to use for syntax highlighting.</param>
+    /// <param name="encoding">The character encoding to use. If null, encoding will be detected from the stream's byte order mark (BOM).</param>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task representing the asynchronous operation with the parsed string.</returns>
-    public static async Task<string> WriteCSharpAsync(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles? csharpStyles = null)
+    public static async Task<string> WriteCSharpAsync(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles? csharpStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
         var csharpWriter = new CSharpWriter(ansiConsole, csharpStyles ?? CSharpStyles.Default);
-        return await CSharpTokenizer.Create().ParseAsync(
-            stream,
-            csharpWriter.WriteToken
-        );
+        if (encoding is null)
+        {
+            // Call overload without encoding to preserve BOM detection
+            return await CSharpTokenizer.Create().ParseAsync(
+                stream,
+                ct,
+                csharpWriter.WriteToken
+            );
+        }
+        else
+        {
+            // Call overload with encoding and cancellation token
+            return await CSharpTokenizer.Create().ParseAsync(
+                stream,
+                encoding,
+                ct,
+                csharpWriter.WriteToken
+            );
+        }
     }
 
     /// <summary>
@@ -33,10 +50,12 @@ public static class AnsiConsoleCSharpExtensions
     /// <param name="ansiConsole">The <see cref="IAnsiConsole"/> to write to.</param>
     /// <param name="stream">The stream containing C# code to render.</param>
     /// <param name="csharpStyles">The styles to use for syntax highlighting.</param>
+    /// <param name="encoding">The character encoding to use. If null, encoding will be detected from the stream's byte order mark (BOM).</param>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>The parsed string.</returns>
-    public static string WriteCSharp(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles? csharpStyles = null)
+    public static string WriteCSharp(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles? csharpStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles));
+        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles, encoding, ct), ct);
         return t.GetAwaiter().GetResult();
     }
 
@@ -57,7 +76,7 @@ public static class AnsiConsoleCSharpExtensions
     public static void WriteCSharp(this IAnsiConsole ansiConsole, string value, CSharpStyles csharpStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles));
+        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles, null, default));
         t.GetAwaiter().GetResult();
     }
 }

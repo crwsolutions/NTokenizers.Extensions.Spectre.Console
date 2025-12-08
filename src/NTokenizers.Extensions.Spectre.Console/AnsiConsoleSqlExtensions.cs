@@ -18,14 +18,31 @@ public static class AnsiConsoleSqlExtensions
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing SQL content.</param>
     /// <param name="sqlStyles">The SQL styles to use for syntax highlighting.</param>
+    /// <param name="encoding">The character encoding to use. If null, encoding will be detected from the stream's byte order mark (BOM).</param>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task<string> WriteSqlAsync(this IAnsiConsole ansiConsole, Stream stream, SqlStyles? sqlStyles = null)
+    public static async Task<string> WriteSqlAsync(this IAnsiConsole ansiConsole, Stream stream, SqlStyles? sqlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
         var sqlWriter = new SqlWriter(ansiConsole, sqlStyles ?? SqlStyles.Default);
-        return await SqlTokenizer.Create().ParseAsync(
-            stream,
-            sqlWriter.WriteToken
-        );
+        if (encoding is null)
+        {
+            // Call overload without encoding to preserve BOM detection
+            return await SqlTokenizer.Create().ParseAsync(
+                stream,
+                ct,
+                sqlWriter.WriteToken
+            );
+        }
+        else
+        {
+            // Call overload with encoding and cancellation token
+            return await SqlTokenizer.Create().ParseAsync(
+                stream,
+                encoding,
+                ct,
+                sqlWriter.WriteToken
+            );
+        }
     }
 
     /// <summary>
@@ -34,10 +51,12 @@ public static class AnsiConsoleSqlExtensions
     /// <param name="ansiConsole">The ANSI console to write to.</param>
     /// <param name="stream">The stream containing SQL content.</param>
     /// <param name="sqlStyles">The SQL styles to use for syntax highlighting.</param>
+    /// <param name="encoding">The character encoding to use. If null, encoding will be detected from the stream's byte order mark (BOM).</param>
+    /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>The processed SQL content as a string.</returns>
-    public static string WriteSql(this IAnsiConsole ansiConsole, Stream stream, SqlStyles? sqlStyles = null)
+    public static string WriteSql(this IAnsiConsole ansiConsole, Stream stream, SqlStyles? sqlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles));
+        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles, encoding, ct), ct);
         return t.GetAwaiter().GetResult();
     }
 
@@ -58,7 +77,7 @@ public static class AnsiConsoleSqlExtensions
     public static void WriteSql(this IAnsiConsole ansiConsole, string value, SqlStyles sqlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles));
+        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles, null, default));
         t.GetAwaiter().GetResult();
     }
 }
