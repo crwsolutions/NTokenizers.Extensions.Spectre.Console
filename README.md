@@ -12,5 +12,7 @@ await AnsiConsole.Console.WriteMarkupTextAsync(stream);
 ```
 
 > **Especially suitable for parsing AI chat streams**, NTokenizers excels at processing real-time tokenized data from AI models, enabling efficient handling of streaming responses and chat conversations without buffering entire responses.
+> 
+> Check out the [AI Example](https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console/ai) to learn more about that.
 
 Check out the documentation [Here](https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console/).
