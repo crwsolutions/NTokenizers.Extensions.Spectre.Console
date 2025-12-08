@@ -78,7 +78,7 @@ public static class AnsiConsoleJsonExtensions
     public static void WriteJson(this IAnsiConsole ansiConsole, string value, JsonStyles jsonStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteJsonAsync(ansiConsole, stream, jsonStyles));
+        var t = Task.Run(() => WriteJsonAsync(ansiConsole, stream, jsonStyles, null, default));
         t.GetAwaiter().GetResult();
     }
 }

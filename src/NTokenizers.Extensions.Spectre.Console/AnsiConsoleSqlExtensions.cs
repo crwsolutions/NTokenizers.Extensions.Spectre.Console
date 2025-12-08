@@ -77,7 +77,7 @@ public static class AnsiConsoleSqlExtensions
     public static void WriteSql(this IAnsiConsole ansiConsole, string value, SqlStyles sqlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles));
+        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles, null, default));
         t.GetAwaiter().GetResult();
     }
 }

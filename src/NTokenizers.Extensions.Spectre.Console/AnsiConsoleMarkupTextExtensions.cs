@@ -77,7 +77,7 @@ public static class AnsiConsoleMarkupTextExtensions
     public static void WriteMarkupText(this IAnsiConsole ansiConsole, string value, MarkupStyles markupStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles));
+        var t = Task.Run(() => WriteMarkupTextAsync(ansiConsole, stream, markupStyles, null, default));
         t.GetAwaiter().GetResult();
     }
 }
