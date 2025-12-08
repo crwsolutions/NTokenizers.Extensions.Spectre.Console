@@ -76,7 +76,7 @@ public static class AnsiConsoleCSharpExtensions
     public static void WriteCSharp(this IAnsiConsole ansiConsole, string value, CSharpStyles csharpStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles, null, default));
+        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles, Encoding.UTF8, default));
         t.GetAwaiter().GetResult();
     }
 }

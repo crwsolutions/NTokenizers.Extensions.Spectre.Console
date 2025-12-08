@@ -76,7 +76,7 @@ public static class AnsiConsoleXmlExtensions
     public static void WriteXml(this IAnsiConsole ansiConsole, string value, XmlStyles xmlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteXmlAsync(ansiConsole, stream, xmlStyles, null, default));
+        var t = Task.Run(() => WriteXmlAsync(ansiConsole, stream, xmlStyles, Encoding.UTF8, default));
         t.GetAwaiter().GetResult();
     }
 }

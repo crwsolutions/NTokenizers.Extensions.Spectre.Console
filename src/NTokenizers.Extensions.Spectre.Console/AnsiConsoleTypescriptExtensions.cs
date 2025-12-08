@@ -76,7 +76,7 @@ public static class AnsiConsoleTypescriptExtensions
     public static void WriteTypescript(this IAnsiConsole ansiConsole, string value, TypescriptStyles typescriptStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteTypescriptAsync(ansiConsole, stream, typescriptStyles, null, default));
+        var t = Task.Run(() => WriteTypescriptAsync(ansiConsole, stream, typescriptStyles, Encoding.UTF8, default));
         t.GetAwaiter().GetResult();
     }
 }
