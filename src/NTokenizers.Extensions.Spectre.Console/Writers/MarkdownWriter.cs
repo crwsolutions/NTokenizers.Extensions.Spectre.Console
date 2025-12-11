@@ -48,6 +48,11 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
             var writer = new JsonWriter(ansiConsole, MarkdownStyles.JsonStyles);
             await writer.WriteAsync(jsonMeta);
         }
+        else if (token.Metadata is YamlCodeBlockMetadata yamlMeta)
+        {
+            var writer = new YamlWriter(ansiConsole, MarkdownStyles.YamlStyles);
+            await writer.WriteAsync(yamlMeta);
+        }
         else if (token.Metadata is SqlCodeBlockMetadata sqlMeta)
         {
             var writer = new SqlWriter(ansiConsole, MarkdownStyles.SqlStyles);

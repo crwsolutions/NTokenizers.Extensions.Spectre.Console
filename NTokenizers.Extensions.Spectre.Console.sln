@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Markdown", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Markdown\NTokenizers.Extensions.Spectre.Console.ShowCase.Markdown.csproj", "{79DA44F9-C483-9A40-999C-FFEC40266BEC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml", "tests\NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml\NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml.csproj", "{32C46DCF-D05C-45E5-D23F-B87FB9999948}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{79DA44F9-C483-9A40-999C-FFEC40266BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79DA44F9-C483-9A40-999C-FFEC40266BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79DA44F9-C483-9A40-999C-FFEC40266BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C46DCF-D05C-45E5-D23F-B87FB9999948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C46DCF-D05C-45E5-D23F-B87FB9999948}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C46DCF-D05C-45E5-D23F-B87FB9999948}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C46DCF-D05C-45E5-D23F-B87FB9999948}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

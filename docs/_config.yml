@@ -20,6 +20,8 @@ sidebar:
       url: "typescript"
     - title: "Xml"
       url: "xml"
+    - title: "Yaml"
+      url: "yaml"
     - title: "AI Example"
       url: "ai"
 

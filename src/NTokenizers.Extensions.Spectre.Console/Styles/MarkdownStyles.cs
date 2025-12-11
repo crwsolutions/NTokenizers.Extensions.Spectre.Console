@@ -160,6 +160,11 @@ public class MarkdownStyles
     public JsonStyles JsonStyles { get; } = JsonStyles.Default;
 
     /// <summary>
+    /// Gets the Yaml styles used for rendering Yaml content i markdown content.
+    /// </summary>
+    public YamlStyles YamlStyles {  get; } = YamlStyles.Default;
+
+    /// <summary>
     /// Gets the XML styles used for rendering XML content in markdown content.
     /// </summary>
     public XmlStyles XmlStyles { get; } = XmlStyles.Default;

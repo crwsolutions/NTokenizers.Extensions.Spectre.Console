@@ -186,6 +186,20 @@ internal static class MarkdownExample
          </glossary>
         ```
 
+        ```yaml
+        # Block Sequence
+        fruits:
+            - apple
+            - banana
+            - cherry
+        
+        # Flow Sequence
+        numbers: [1, 2, 3, 4]
+        
+        # Flow Mapping
+        employee: { name: "Bob", position: "Developer" }
+        ```
+
         ```html
         <!DOCTYPE html>
         <html>
