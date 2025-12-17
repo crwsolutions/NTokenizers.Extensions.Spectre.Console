@@ -9,7 +9,7 @@
     <!-- NuGet package metadata -->
     <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
  	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>2.0</Version>
+	<Version>2.0.1</Version>
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,7 +21,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
     <Title>NTokenizers.Extensions.Spectre.Console</Title>
-    <PackageReleaseNotes>Added yaml</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix: Line breaks occur when lines exceed terminal width in code</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
