@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.AI;
+using NTokenizers.Extensions.Spectre.Console.ShowCase.Ai.Prompts;
 using Spectre.Console;
 using System.Diagnostics;
 using System.IO.Pipelines;
@@ -31,8 +32,8 @@ public partial class ChatService
             System.Console.WriteLine();
 
             // Get user prompt and add to chat history
-            AnsiConsole.MarkupLine("[green]Your prompt: [/]");
-            var userPrompt = AnsiConsole.Prompt(new MultilinePrompt());
+            //AnsiConsole.MarkupLine("[green]Your prompt: [/]");
+            var userPrompt = AnsiConsole.Prompt(new PromptBox().Placeholder("Your prompt"));
 
             if (string.Equals(userPrompt, "bye", StringComparison.OrdinalIgnoreCase))
             {
