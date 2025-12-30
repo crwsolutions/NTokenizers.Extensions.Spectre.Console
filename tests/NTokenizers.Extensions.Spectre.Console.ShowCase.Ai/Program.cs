@@ -80,6 +80,7 @@ else
     Console.WriteLine();
     AnsiConsole.MarkupLine($"Status: OpenAi: {(statusOai.IsUp ? "[green]✅[/]" : "[red]❌[/]")} Model: {(statusOai.IsAvailable ? "[green]✅[/]" : "[red]❌[/]")} Running: {(statusOai.IsRunning ? "[green]✅[/]" : "[red]❌[/]")}");
 }
+AnsiConsole.WriteLine();
 
 var app = builder.Build();
 
