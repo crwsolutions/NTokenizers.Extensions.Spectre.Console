@@ -52,7 +52,7 @@ public sealed class JsonStyles
     /// <summary>
     /// Gets or sets the style for string values in JSON.
     /// </summary>
-    public Style StringValue { get; set; } = new Style(Color.DarkSlateGray1);
+    public Style StringValue { get; set; } = new Style(Color.White);
 
     /// <summary>
     /// Gets or sets the style for numeric values in JSON.
