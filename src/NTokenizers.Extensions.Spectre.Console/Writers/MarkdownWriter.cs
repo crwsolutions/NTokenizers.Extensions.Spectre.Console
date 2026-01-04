@@ -43,6 +43,11 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
             var writer = new TypescriptWriter(ansiConsole, MarkdownStyles.TypescriptStyles);
             await writer.WriteAsync(tsMeta);
         }
+        else if (token.Metadata is CssCodeBlockMetadata cssMeta)
+        {
+            var writer = new CssWriter(ansiConsole, MarkdownStyles.CssStyles);
+            await writer.WriteAsync(cssMeta);
+        }
         else if (token.Metadata is JsonCodeBlockMetadata jsonMeta)
         {
             var writer = new JsonWriter(ansiConsole, MarkdownStyles.JsonStyles);

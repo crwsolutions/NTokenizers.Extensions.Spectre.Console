@@ -175,6 +175,11 @@ public class MarkdownStyles
     public TypescriptStyles TypescriptStyles { get; } = TypescriptStyles.Default;
 
     /// <summary>
+    /// Gets the CSS styles used for rendering Css code in markdown content.
+    /// </summary>
+    public CssStyles CssStyles { get; } = CssStyles.Default;
+
+    /// <summary>
     /// Gets the SQL styles used for rendering SQL queries in markdown content.
     /// </summary>
     public SqlStyles SqlStyles { get; } = SqlStyles.Default;

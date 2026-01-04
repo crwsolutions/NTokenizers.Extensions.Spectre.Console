@@ -3,7 +3,7 @@ namespace NTokenizers.Extensions.Spectre.Console.ShowCase.Markdown;
 internal static class MarkdownExample
 {
     internal static string GetSampleText() =>
-        """
+        """"
         ## Text
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
@@ -184,6 +184,23 @@ internal static class MarkdownExample
            </GlossList>
           </GlossDiv>
          </glossary>
+        ```
+
+        ```css
+         /* Complex CSS with strings, urls, and mixed quotes */
+        @media screen and (max-width: 768px) and (orientation: "portrait") {
+            :root {
+                --font-name: "Open Sans";
+                --icon-path: url('/assets/icons/ui/icon\'s-set.svg');
+                --label-text: 'Click "Here"';
+            }
+            .header::before {
+                content: "Welcome to \"My Site\"";
+                font-family: var(--font-name), 'Segoe UI', sans-serif;
+                background-image: url("https://example.com/images/bg(\"dark\").png");
+                padding: calc(1rem + 2px);
+            }
+        }
         ```
 
         ```yaml
@@ -370,5 +387,5 @@ internal static class MarkdownExample
         *here be dragons*
         :::
         
-        """;
+        """";
 }
