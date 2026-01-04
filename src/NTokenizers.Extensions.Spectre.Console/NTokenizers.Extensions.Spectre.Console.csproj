@@ -9,19 +9,19 @@
     <!-- NuGet package metadata -->
     <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
  	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>2.0.1</Version>
+	<Version>2.1</Version>
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, C# and SQL), Style-rich console syntax highlighting</Description>
-    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, C# and SQL), Style-rich console syntax highlighting</PackageDescription>
-    <PackageTags>tokenizer;xml;json;md;markdown;typescript;c#;csharp;sql;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
+    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, C# and SQL), Style-rich console syntax highlighting</Description>
+    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, C# and SQL), Style-rich console syntax highlighting</PackageDescription>
+    <PackageTags>tokenizer;xml;json;md;markdown;typescript;css;c#;csharp;sql;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
     <RepositoryUrl>https://github.com/crwsolutions/NTokenizers.Extensions.Spectre.Console</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
     <Title>NTokenizers.Extensions.Spectre.Console</Title>
-    <PackageReleaseNotes>Fix: Line breaks occur when lines exceed terminal width in code</PackageReleaseNotes>
+    <PackageReleaseNotes>Added CSS writer</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
