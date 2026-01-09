@@ -9,7 +9,7 @@ namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
 internal class MarkdownWriter(IAnsiConsole ansiConsole)
 {
-    internal static MarkdownStyles MarkdownStyles { get; set; } = MarkdownStyles.Default;
+    internal MarkdownStyles MarkdownStyles { get; set; } = MarkdownStyles.Default;
 
     internal static MarkdownWriter Create(IAnsiConsole ansiConsole) => new(ansiConsole);
 

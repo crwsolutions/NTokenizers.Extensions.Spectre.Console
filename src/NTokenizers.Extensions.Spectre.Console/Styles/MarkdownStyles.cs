@@ -170,6 +170,11 @@ public class MarkdownStyles
     public XmlStyles XmlStyles { get; } = XmlStyles.Default;
 
     /// <summary>
+    /// Gets the HTML styles used for rendering HTML content in markdown content.
+    /// </summary>
+    public HtmlStyles HtmlStyles { get; } = HtmlStyles.Default;
+
+    /// <summary>
     /// Gets the TypeScript styles used for rendering TypeScript code in markdown content.
     /// </summary>
     public TypescriptStyles TypescriptStyles { get; } = TypescriptStyles.Default;
