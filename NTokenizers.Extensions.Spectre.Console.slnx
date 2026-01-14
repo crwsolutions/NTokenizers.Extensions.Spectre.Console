@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/NTokenizers.Extensions.Spectre.Console/NTokenizers.Extensions.Spectre.Console.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Ai/NTokenizers.Extensions.Spectre.Console.ShowCase.Ai.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp/NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Css/NTokenizers.Extensions.Spectre.Console.ShowCase.Css.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Html/NTokenizers.Extensions.Spectre.Console.ShowCase.Html.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Json/NTokenizers.Extensions.Spectre.Console.ShowCase.Json.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Markdown/NTokenizers.Extensions.Spectre.Console.ShowCase.Markdown.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Sql/NTokenizers.Extensions.Spectre.Console.ShowCase.Sql.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript/NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Xml/NTokenizers.Extensions.Spectre.Console.ShowCase.Xml.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml/NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml.csproj" />
+</Solution>
