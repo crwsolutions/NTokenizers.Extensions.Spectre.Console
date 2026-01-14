@@ -13,9 +13,9 @@
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, C# and SQL), Style-rich console syntax highlighting</Description>
-    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, C# and SQL), Style-rich console syntax highlighting</PackageDescription>
-    <PackageTags>tokenizer;xml;json;md;markdown;typescript;css;c#;csharp;sql;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
+    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C# and SQL), Style-rich console syntax highlighting</Description>
+    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C# and SQL), Style-rich console syntax highlighting</PackageDescription>
+    <PackageTags>tokenizer;xml;json;md;markdown;typescript;css;html;c#;csharp;sql;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
     <RepositoryUrl>https://github.com/crwsolutions/NTokenizers.Extensions.Spectre.Console</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
