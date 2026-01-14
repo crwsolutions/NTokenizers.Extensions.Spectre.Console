@@ -20,6 +20,8 @@ sidebar:
       url: "typescript"
     - title: "Css"
       url: "css"      
+    - title: "Html"
+      url: "html"
     - title: "Xml"
       url: "xml"
     - title: "Yaml"

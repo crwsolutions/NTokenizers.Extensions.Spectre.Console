@@ -3,6 +3,16 @@ using NTokenizers.Markdown.Metadata;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 using System.Diagnostics;
 using Spectre.Console;
+using NTokenizers.Core;
+using NTokenizers.CSharp;
+using NTokenizers.Xml;
+using NTokenizers.Typescript;
+using NTokenizers.Css;
+using NTokenizers.Json;
+using NTokenizers.Yaml;
+using NTokenizers.Sql;
+using NTokenizers.Generic;
+using NTokenizers.Html;
 
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
@@ -37,6 +47,11 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
         {
             var writer = new XmlWriter(ansiConsole, MarkdownStyles.XmlStyles);
             await writer.WriteAsync(xmlMeta);
+        }
+        else if (token.Metadata is HtmlCodeBlockMetadata htmlMeta)
+        {
+            var writer = new HtmlWriter(ansiConsole, MarkdownStyles.HtmlStyles);
+            await writer.WriteAsync(htmlMeta);
         }
         else if (token.Metadata is TypeScriptCodeBlockMetadata tsMeta)
         {

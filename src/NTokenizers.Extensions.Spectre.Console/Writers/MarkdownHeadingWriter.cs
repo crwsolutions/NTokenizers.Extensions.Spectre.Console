@@ -3,6 +3,7 @@ using NTokenizers.Markdown.Metadata;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 using Spectre.Console.Rendering;
 using Spectre.Console;
+using NTokenizers.Core;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
@@ -13,7 +14,7 @@ internal sealed class MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHe
 
     protected override Style GetStyle(MarkdownTokenType token) => _style;
 
-    protected override async Task StartedAsync(InlineMarkdownMetadata<MarkdownToken> metadata)
+    protected override async Task StartedAsync(InlineMetadata<MarkdownToken> metadata)
     {
         _liveParagraph.Append("\n");
         if (metadata is HeadingMetadata meta)
@@ -31,7 +32,7 @@ internal sealed class MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHe
         }
     }
 
-    protected override async Task FinalizeAsync(InlineMarkdownMetadata<MarkdownToken> metadata)
+    protected override async Task FinalizeAsync(InlineMetadata<MarkdownToken> metadata)
     {
         if (metadata is HeadingMetadata meta)
         {
@@ -54,10 +55,10 @@ internal sealed class MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHe
 
     private async Task WriteToken(string text)
     {
-        await WriteTokenAsync(_liveParagraph, new MarkdownToken(MarkdownTokenType.Text, text));
+        await WriteTokenAsync(_liveParagraph, new MarkdownToken(MarkdownTokenType.Text, text), null);
     }
 
-    protected override async Task WriteTokenAsync(Paragraph liveParagraph, MarkdownToken token)
+    protected override async Task WriteTokenAsync(Paragraph? liveParagraph, MarkdownToken token, LiveDisplayContext? ctx)
     {
         _lenght += token.Value.Length;
         await MarkdownWriter.Create(ansiConsole).WriteAsync(liveParagraph, token, _style);

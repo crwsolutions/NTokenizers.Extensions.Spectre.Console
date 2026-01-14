@@ -1,5 +1,4 @@
 ﻿using NTokenizers.Core;
-using NTokenizers.Markdown.Metadata;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using System.Diagnostics;
@@ -8,16 +7,30 @@ namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
 internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiConsole) where TToken : IToken<TTokentype> where TTokentype : Enum
 {
+    internal protected readonly LiveDisplayContext? _liveDisplayContext;
+
+    internal BaseInlineWriter(IAnsiConsole ansiConsole, Paragraph? liveParagraph, LiveDisplayContext? ctx) : this(ansiConsole)
+    {
+        _liveParagraph = liveParagraph ?? new("");
+        _liveDisplayContext = ctx;
+    }
+
     protected virtual Style GetStyle(TTokentype token) => Style.Plain;
 
-    protected readonly Paragraph _liveParagraph = new("");
+    internal protected readonly Paragraph _liveParagraph = new("");
 
     internal void WriteToken(TToken token)
     {
         ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
     }
 
-    internal async Task WriteAsync(InlineMarkdownMetadata<TToken> metadata)
+    internal void WriteTokenInLiveTarget(TToken token)
+    {
+        WriteToken(_liveParagraph, token);
+        _liveDisplayContext?.Refresh();
+    }
+
+    internal async Task WriteAsync(InlineMetadata<TToken> metadata)
     {
         var liveDisplay = new LiveDisplay(ansiConsole, GetIRendable());
         await liveDisplay
@@ -26,7 +39,7 @@ internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiCo
             await StartedAsync(metadata);
             await metadata.RegisterInlineTokenHandler(async inlineToken =>
             {
-                await WriteTokenAsync(_liveParagraph, inlineToken);
+                await WriteTokenAsync(_liveParagraph, inlineToken, ctx);
                 ctx.Refresh();
             });
 
@@ -43,17 +56,30 @@ internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiCo
             ;
     }
 
-    protected virtual Task StartedAsync(InlineMarkdownMetadata<TToken> metadata) => Task.CompletedTask;
+    protected virtual Task StartedAsync(InlineMetadata<TToken> metadata) => Task.CompletedTask;
 
-    protected virtual Task FinalizeAsync(InlineMarkdownMetadata<TToken> metadata) => Task.CompletedTask;
+    protected virtual Task FinalizeAsync(InlineMetadata<TToken> metadata) => Task.CompletedTask;
 
-    protected virtual Task WriteTokenAsync(Paragraph liveParagraph, TToken token)
+    protected virtual Task WriteTokenAsync(Paragraph? liveParagraph, TToken token, LiveDisplayContext? ctx)
     {
-        if (!string.IsNullOrEmpty(token.Value))
+        WriteToken(liveParagraph, token);
+        return Task.CompletedTask;
+    }
+
+    protected virtual void WriteToken(Paragraph? liveParagraph, TToken token)
+    {
+        if (token.Value is not null)
         {
             Debug.WriteLine($"Writing token: `{token.Value}` of type `{token.TokenType}`");
-            liveParagraph.Append(token.Value, GetStyle(token.TokenType));
+
+            if (liveParagraph is null)
+            {
+                ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
+            }
+            else
+            {
+                liveParagraph.Append(token.Value, GetStyle(token.TokenType));
+            }
         }
-        return Task.CompletedTask;
     }
 }

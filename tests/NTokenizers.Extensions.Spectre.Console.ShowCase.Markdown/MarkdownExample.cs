@@ -96,9 +96,6 @@ internal static class MarkdownExample
                     "GlossList": {
                         "GlossEntry": {
                             "ID": "SGML",
-                            "SortAs": "SGML",
-                            "GlossTerm": "Standard Generalized Markup Language",
-                            "Acronym": "SGML",
                             "Abbrev": "ISO 8879:1986",
                             "GlossDef": {
                                 "para": "A meta-markup language, used to create markup languages such as DocBook.",
@@ -148,18 +145,6 @@ internal static class MarkdownExample
         // Array and map
         const numbers = [1, 2, 3, 4, 5];
         const squared = numbers.map(num => num ** 2);
-
-        // Output using template literals
-        console.log(`Squared values: ${squared.join(", ")}`);
-
-        // Exception handling: try-catch-finally
-        try {
-            throw new Error("An unexpected error occurred!");
-        } catch (error) {
-            console.error(error.message);
-        } finally {
-            console.info("Execution completed.");
-        }
         ```
 
         ```xml
@@ -169,13 +154,11 @@ internal static class MarkdownExample
            <GlossDiv><title>S</title>
            <GlossList>
             <!-- GlossEntry -->
-            <GlossEntry ID="SGML" SortAs="SGML">
-             <GlossTerm>Standard Generalized Markup Language</GlossTerm>
+            <GlossEntry ID="SGML">
              <Acronym>SGML</Acronym>
              <Abbrev>ISO 8879:1986</Abbrev>
              <GlossDef>
               <para>A meta-markup language, used to create markup languages such as DocBook.</para>
-              <GlossSeeAlso OtherTerm="GML" >
               <GlossSeeAlso OtherTerm="XML" >
               <![CDATA[This is CDATA content.]]>
              </GlossDef>
@@ -220,12 +203,25 @@ internal static class MarkdownExample
         ```html
         <!DOCTYPE html>
         <html>
-            <head>
-                <title>Example</title>
-            </head>
-            <body>
-                <p>This is an example of a simple HTML page with one paragraph.</p>
-            </body>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                .container { max-width: 600px; margin: 0 auto; }
+                button { padding: 10px 15px; background: #007bff; color: white; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Hello World</h1>
+                <p>This is a sample HTML page.</p>
+                <button onclick="alert('Clicked!')">Click Me</button>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log('Page loaded');
+                });
+            </script>
+        </body>
         </html>
         ```
 

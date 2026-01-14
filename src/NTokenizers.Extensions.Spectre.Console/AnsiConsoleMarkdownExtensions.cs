@@ -23,7 +23,7 @@ public static class AnsiConsoleMarkdownExtensions
     public static async Task<string> WriteMarkdownAsync(this IAnsiConsole ansiConsole, Stream stream, MarkdownStyles? markdownStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
         var markdownWriter = MarkdownWriter.Create(ansiConsole);
-        MarkdownWriter.MarkdownStyles = markdownStyles ?? MarkdownStyles.Default;
+        markdownWriter.MarkdownStyles = markdownStyles ?? MarkdownStyles.Default;
         if (encoding is null)
         {
             // Call overload without encoding to preserve BOM detection
