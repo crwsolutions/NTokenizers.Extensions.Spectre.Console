@@ -13,4 +13,5 @@
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript/NTokenizers.Extensions.Spectre.Console.ShowCase.Typescript.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Xml/NTokenizers.Extensions.Spectre.Console.ShowCase.Xml.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml/NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Toml/NTokenizers.Extensions.Spectre.Console.ShowCase.Toml.csproj" />
 </Solution>
