@@ -58,6 +58,8 @@ else
 {
     endpoint = "http://localhost:8080/";
     modelId = "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q6_K";
+    AnsiConsole.MarkupLine($"Requested model: {modelId}");
+
     builder.Services.AddChatClient(new OpenAIClient(
                 new ApiKeyCredential("dummy"), // llama.cpp requires one, value ignored
                 new OpenAIClientOptions { Endpoint = new Uri(endpoint) })
@@ -76,6 +78,10 @@ else
         .StartAsync("Checking ai model...", async ctx =>
         {
             statusOai = await OpenAiEndpoint.GetStatusAsync(endpoint, null, modelId);
+            if (statusOai.ActualModelId is not null)
+            {
+                modelId = statusOai.ActualModelId;
+            }
         });
     Console.WriteLine();
     AnsiConsole.MarkupLine($"Status: OpenAi: {(statusOai.IsUp ? "[green]✅[/]" : "[red]❌[/]")} Model: {(statusOai.IsAvailable ? "[green]✅[/]" : "[red]❌[/]")} Running: {(statusOai.IsRunning ? "[green]✅[/]" : "[red]❌[/]")}");

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.AI;
+using Microsoft.Extensions.AI;
 using NTokenizers.Extensions.Spectre.Console.ShowCase.Ai.Prompts;
 using Spectre.Console;
 using System.Diagnostics;
@@ -15,10 +15,11 @@ public partial class ChatService
     public async Task StartAsync()
     {
         var help = """"
-                   #### Some extra instructions to accomodate multiline input:
+                   #### Some extra instructions to accommodate multiline input:
                    |Command|Description|
                    |**Shift-Enter**|to place a soft new line|
                    |**Ctrl-B**|to paste multiline, do not use **Ctrl-V**, because that will input a _<Enter>_'s|
+                   |**?** / **help**|type ? or help to show this help again|
                    |**bye**|type bye to end the chat session|
                    |**clear**|type clear to clear the chat history|
                    """";
@@ -44,6 +45,13 @@ public partial class ChatService
             {
                 chatHistory.Clear();
                 AnsiConsole.MarkupLine("[darkorange3_1]Cleared the history 🧹[/]");
+                System.Console.WriteLine();
+                continue;
+            }
+
+            if (userPrompt == "?" || string.Equals(userPrompt, "help", StringComparison.OrdinalIgnoreCase))
+            {
+                AnsiConsole.Console.WriteMarkdown(help);
                 System.Console.WriteLine();
                 continue;
             }
