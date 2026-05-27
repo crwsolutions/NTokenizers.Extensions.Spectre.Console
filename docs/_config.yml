@@ -26,6 +26,8 @@ sidebar:
       url: "xml"
     - title: "Yaml"
       url: "yaml"
+    - title: "Toml"
+      url: "toml"
     - title: "AI Example"
       url: "ai"
 

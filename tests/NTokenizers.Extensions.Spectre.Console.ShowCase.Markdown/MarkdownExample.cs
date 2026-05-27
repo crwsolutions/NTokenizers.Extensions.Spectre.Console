@@ -200,6 +200,12 @@ internal static class MarkdownExample
         employee: { name: "Bob", position: "Developer" }
         ```
 
+        ```toml
+        title = "My App"
+        active = true
+        count = [42, 43, 44]
+        ```
+
         ```html
         <!DOCTYPE html>
         <html>

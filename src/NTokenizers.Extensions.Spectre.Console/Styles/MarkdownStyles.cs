@@ -165,6 +165,11 @@ public class MarkdownStyles
     public YamlStyles YamlStyles {  get; } = YamlStyles.Default;
 
     /// <summary>
+    /// Gets the Toml styles used for rendering Toml content i markdown content.
+    /// </summary>
+    public TomlStyles TomlStyles { get; } = TomlStyles.Default;
+
+    /// <summary>
     /// Gets the XML styles used for rendering XML content in markdown content.
     /// </summary>
     public XmlStyles XmlStyles { get; } = XmlStyles.Default;
