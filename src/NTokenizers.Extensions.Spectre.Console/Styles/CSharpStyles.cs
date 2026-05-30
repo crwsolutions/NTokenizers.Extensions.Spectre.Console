@@ -27,7 +27,7 @@ public sealed class CSharpStyles
     /// <summary>
     /// Gets or sets the style for string literals enclosed in double quotes.
     /// </summary>
-    public Style StringValue { get; set; } = new Style(Color.DarkSlateGray2);
+    public Style StringValue { get; set; } = new Style(Color.DarkSlateGray1);
     
     /// <summary>
     /// Gets or sets the style for single-line and multi-line comments.

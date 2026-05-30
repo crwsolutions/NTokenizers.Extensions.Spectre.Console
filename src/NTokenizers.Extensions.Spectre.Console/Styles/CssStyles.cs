@@ -17,12 +17,12 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for CSS rule set start markers ({).
     /// </summary>
-    public Style StartRuleSet { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style StartRuleSet { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for CSS rule set end markers (}).
     /// </summary>
-    public Style EndRuleSet { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style EndRuleSet { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for CSS selectors.
@@ -42,7 +42,7 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for CSS string values (quoted strings).
     /// </summary>
-    public Style StringValue { get; set; } = new Style(Color.White);
+    public Style StringValue { get; set; } = new Style(Color.DarkSlateGray1);
 
     /// <summary>
     /// Gets or sets the style for CSS string quotes
@@ -52,7 +52,7 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for CSS number values (integer, float).
     /// </summary>
-    public Style Number { get; set; } = new Style(Color.DeepSkyBlue3_1);
+    public Style Number { get; set; } = new Style(Color.Blue);
 
     /// <summary>
     /// Gets or sets the style for CSS units (px, em, %, rem, pt, etc.).
@@ -67,12 +67,12 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for opening parentheses in CSS functions.
     /// </summary>
-    public Style OpenParen { get; set; } = new Style(Color.Cyan);
+    public Style OpenParen { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for closing parentheses in CSS functions.
     /// </summary>
-    public Style CloseParen { get; set; } = new Style(Color.Cyan);
+    public Style CloseParen { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for CSS comments.
@@ -82,22 +82,22 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for CSS colon separators (:).
     /// </summary>
-    public Style Colon { get; set; } = new Style(Color.DeepSkyBlue4_2);
+    public Style Colon { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for CSS semicolon separators (;).
     /// </summary>
-    public Style Semicolon { get; set; } = new Style(Color.DeepSkyBlue4_2);
+    public Style Semicolon { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for CSS comma separators (,).
     /// </summary>
-    public Style Comma { get; set; } = new Style(Color.DeepSkyBlue4_2);
+    public Style Comma { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for whitespace characters in CSS.
     /// </summary>
-    public Style Whitespace { get; set; } = new Style(Color.Default);
+    public Style Whitespace { get; set; } = new Style(Color.White);
 
     /// <summary>
     /// Gets or sets the style for CSS at-rules (@media, @import, @keyframes, etc.).
@@ -107,7 +107,7 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for CSS identifiers (class names, IDs, property names).
     /// </summary>
-    public Style Identifier { get; set; } = new Style(Color.DarkSlateGray1);
+    public Style Identifier { get; set; } = new Style(Color.White);
 
     /// <summary>
     /// Gets or sets the style for CSS operators (+, -, *, /).
@@ -122,12 +122,12 @@ public sealed class CssStyles
     /// <summary>
     /// Gets or sets the style for attribute selector opening brackets ([).
     /// </summary>
-    public Style LeftBracket { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style LeftBracket { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for attribute selector closing brackets (]).
     /// </summary>
-    public Style RightBracket { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style RightBracket { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for CSS equality operators (=).

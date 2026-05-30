@@ -51,7 +51,7 @@ public sealed class YamlStyles
     /// <summary>
     /// Gets or sets the style for colon separators.
     /// </summary>
-    public Style Colon { get; set; } = new Style(Color.DeepSkyBlue3_1);
+    public Style Colon { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for plain values or quoted string values.
@@ -61,12 +61,12 @@ public sealed class YamlStyles
     /// <summary>
     /// Gets or sets the style for quote characters (").
     /// </summary>
-    public Style Quote { get; set; } = new Style(Color.DeepSkyBlue4_2);
+    public Style Quote { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for content between quotes.
     /// </summary>
-    public Style String { get; set; } = new Style(Color.White);
+    public Style String { get; set; } = new Style(Color.DarkSlateGray1);
 
     /// <summary>
     /// Gets or sets the style for anchors.
@@ -86,22 +86,22 @@ public sealed class YamlStyles
     /// <summary>
     /// Gets or sets the style for flow sequence start markers ([).
     /// </summary>
-    public Style FlowSeqStart { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style FlowSeqStart { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for flow sequence end markers (]).
     /// </summary>
-    public Style FlowSeqEnd { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style FlowSeqEnd { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for flow mapping start markers ({).
     /// </summary>
-    public Style FlowMapStart { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style FlowMapStart { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for flow mapping end markers (}).
     /// </summary>
-    public Style FlowMapEnd { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style FlowMapEnd { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for comma separators in flow collections.
