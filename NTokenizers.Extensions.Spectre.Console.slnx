@@ -4,6 +4,7 @@
   </Folder>
   <Project Path="src/NTokenizers.Extensions.Spectre.Console/NTokenizers.Extensions.Spectre.Console.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Ai/NTokenizers.Extensions.Spectre.Console.ShowCase.Ai.csproj" />
+  <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.C/NTokenizers.Extensions.Spectre.Console.ShowCase.C.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp/NTokenizers.Extensions.Spectre.Console.ShowCase.CSharp.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Css/NTokenizers.Extensions.Spectre.Console.ShowCase.Css.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Html/NTokenizers.Extensions.Spectre.Console.ShowCase.Html.csproj" />
@@ -14,4 +15,11 @@
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Xml/NTokenizers.Extensions.Spectre.Console.ShowCase.Xml.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml/NTokenizers.Extensions.Spectre.Console.ShowCase.Yaml.csproj" />
   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Toml/NTokenizers.Extensions.Spectre.Console.ShowCase.Toml.csproj" />
-</Solution>
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Cpp/NTokenizers.Extensions.Spectre.Console.ShowCase.Cpp.csproj" />
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Go/NTokenizers.Extensions.Spectre.Console.ShowCase.Go.csproj" />
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Java/NTokenizers.Extensions.Spectre.Console.ShowCase.Java.csproj" />
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Kotlin/NTokenizers.Extensions.Spectre.Console.ShowCase.Kotlin.csproj" />
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Python/NTokenizers.Extensions.Spectre.Console.ShowCase.Python.csproj" />
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Rust/NTokenizers.Extensions.Spectre.Console.ShowCase.Rust.csproj" />
+   <Project Path="tests/NTokenizers.Extensions.Spectre.Console.ShowCase.Swift/NTokenizers.Extensions.Spectre.Console.ShowCase.Swift.csproj" />
+  </Solution>

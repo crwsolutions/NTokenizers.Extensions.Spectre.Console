@@ -5,7 +5,7 @@ title: "Home"
 
 # NTokenizers.Extensions.Spectre.Console
 
-The **NTokenizers.Extensions.Spectre.Console** library provides advanced syntax highlighting using Spectre.Console for XML, JSON, Markdown, TypeScript, JavaScript, CSS, HTML, C#, and SQL.
+The **NTokenizers.Extensions.Spectre.Console** library provides advanced syntax highlighting using Spectre.Console for XML, JSON, Markdown, TypeScript, JavaScript, CSS, HTML, C#, SQL, TOML, C, C++, Go, Java, Kotlin, Python, Rust, and Swift.
 
 ![Example](assets/example.png)
 
