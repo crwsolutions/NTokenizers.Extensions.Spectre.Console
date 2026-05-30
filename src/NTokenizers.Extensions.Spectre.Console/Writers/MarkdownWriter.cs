@@ -13,6 +13,7 @@ using NTokenizers.Yaml;
 using NTokenizers.Sql;
 using NTokenizers.Generic;
 using NTokenizers.Html;
+using NTokenizers.Toml;
 
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
@@ -72,6 +73,11 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
         {
             var writer = new YamlWriter(ansiConsole, MarkdownStyles.YamlStyles);
             await writer.WriteAsync(yamlMeta);
+        }
+        else if (token.Metadata is TomlCodeBlockMetadata tomlMeta)
+        {
+            var writer = new TomlWriter(ansiConsole, MarkdownStyles.TomlStyles);
+            await writer.WriteAsync(tomlMeta);
         }
         else if (token.Metadata is SqlCodeBlockMetadata sqlMeta)
         {

@@ -50,8 +50,17 @@ internal static class OpenAiEndpoint
 
             status.IsAvailable = models?.Data?.Any(m => m.Id == modelId) is true;
 
-            // OpenAI models are always "running" if available
-            status.IsRunning = status.IsAvailable;
+            var availableModels = models?.Data ?? [];
+            if (!status.IsAvailable && availableModels.Count == 1)
+            {
+                status.ActualModelId = availableModels[0].Id;
+                status.IsRunning = true;
+            }
+            else
+            { 
+                // OpenAI models are always "running" if available
+                status.IsRunning = status.IsAvailable;
+            }
         }
         catch
         {
@@ -68,6 +77,7 @@ public class OpenAiModelStatus
     public bool IsUp { get; set; }
     public bool IsAvailable { get; set; }
     public bool IsRunning { get; set; }
+    public string? ActualModelId { get; internal set; }
 }
 
 public class OpenAiModelsResponse

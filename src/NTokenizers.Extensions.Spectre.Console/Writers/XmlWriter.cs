@@ -15,7 +15,6 @@ internal sealed class XmlWriter(IAnsiConsole ansiConsole, XmlStyles styles) : Ba
         XmlTokenType.DocumentTypeDeclaration => styles.DocumentTypeDeclaration,
         XmlTokenType.CData => styles.CData,
         XmlTokenType.Whitespace => styles.Whitespace,
-        XmlTokenType.EndElement => styles.EndElement,
         XmlTokenType.OpeningAngleBracket => styles.OpeningAngleBracket,
         XmlTokenType.ClosingAngleBracket => styles.ClosingAngleBracket,
         XmlTokenType.AttributeName => styles.AttributeName,

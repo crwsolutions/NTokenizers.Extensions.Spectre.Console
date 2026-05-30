@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -9,25 +9,25 @@
     <!-- NuGet package metadata -->
     <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
  	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>2.2</Version>
+	<Version>2.3</Version>
     <Authors>crwsolutions</Authors>
     <Copyright>(c) crwsolutions</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C# and SQL), Style-rich console syntax highlighting</Description>
-    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C# and SQL), Style-rich console syntax highlighting</PackageDescription>
-    <PackageTags>tokenizer;xml;json;md;markdown;typescript;css;html;c#;csharp;sql;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
+    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C#, SQL and TOML), Style-rich console syntax highlighting</Description>
+    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C#, SQL and TOML), Style-rich console syntax highlighting</PackageDescription>
+    <PackageTags>tokenizer;xml;json;md;markdown;typescript;css;html;c#;csharp;sql;toml;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
     <RepositoryUrl>https://github.com/crwsolutions/NTokenizers.Extensions.Spectre.Console</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
     <Title>NTokenizers.Extensions.Spectre.Console</Title>
-    <PackageReleaseNotes>Added HTML writer</PackageReleaseNotes>
+    <PackageReleaseNotes>Added TOML writer</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NTokenizers" Version="4.0.0" />
-    <PackageReference Include="Spectre.Console" Version="0.55.2" />
+    <PackageReference Include="NTokenizers" Version="5.0.0" />
+    <PackageReference Include="Spectre.Console" Version="0.54.0" />
   </ItemGroup>
 
   <ItemGroup>
