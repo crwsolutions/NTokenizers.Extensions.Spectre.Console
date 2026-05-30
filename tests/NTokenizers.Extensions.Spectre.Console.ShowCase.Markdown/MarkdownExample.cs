@@ -232,97 +232,97 @@ internal static class MarkdownExample
         ```
 
         ```sql
-              -- Create a table with various data types and constraints
-              CREATE TABLE Employees (
-                  EmployeeID INT PRIMARY KEY,
-                  FirstName NVARCHAR(50) NOT NULL,
-                  LastName NVARCHAR(50) NOT NULL,
-                  Position NVARCHAR(50),
-                  Department NVARCHAR(50),
-                  Salary DECIMAL(10, 2),
-                  HireDate DATE DEFAULT GETDATE(),
-                  Active BIT DEFAULT 1
-              );
+        -- Create a table with various data types and constraints
+        CREATE TABLE Employees (
+            EmployeeID INT PRIMARY KEY,
+            FirstName NVARCHAR(50) NOT NULL,
+            LastName NVARCHAR(50) NOT NULL,
+            Position NVARCHAR(50),
+            Department NVARCHAR(50),
+            Salary DECIMAL(10, 2),
+            HireDate DATE DEFAULT GETDATE(),
+            Active BIT DEFAULT 1
+        );
 
-              -- Insert sample data into the Employees table
-              INSERT INTO Employees (EmployeeID, FirstName, LastName, Position, Department, Salary)
-              VALUES
-              (1, 'Alice', 'Smith', 'Software Engineer', 'IT', 75000.00),
-              (2, 'Bob', 'Johnson', 'Data Scientist', 'Analytics', 82000.50),
-              (3, 'Charlie', 'Williams', 'Product Manager', 'Marketing', 91000.25);
-              ```
+        -- Insert sample data into the Employees table
+        INSERT INTO Employees (EmployeeID, FirstName, LastName, Position, Department, Salary)
+        VALUES
+        (1, 'Alice', 'Smith', 'Software Engineer', 'IT', 75000.00),
+        (2, 'Bob', 'Johnson', 'Data Scientist', 'Analytics', 82000.50),
+        (3, 'Charlie', 'Williams', 'Product Manager', 'Marketing', 91000.25);
+        ```
 
-              ```c
-               #include <stdio.h>
+        ```c
+        #include <stdio.h>
 
-               // Hello World in C
-               int main() {
-                   printf("Hello, World!\n");
-                   return 0;
-               }
-               ```
+        // Hello World in C
+        int main() {
+            printf("Hello, World!\n");
+            return 0;
+        }
+        ```
 
-               ```cpp
-               #include <iostream>
+        ```cpp
+        #include <iostream>
 
-               // Hello World in C++
-               int main() {
-                   std::cout << "Hello, World!" << std::endl;
-                   return 0;
-               }
-               ```
+        // Hello World in C++
+        int main() {
+            std::cout << "Hello, World!" << std::endl;
+            return 0;
+        }
+        ```
 
-               ```go
-               package main
+        ```go
+        package main
 
-               import "fmt"
+        import "fmt"
 
-               // Hello World in Go
-               func main() {
-                   fmt.Println("Hello, World!")
-               }
-               ```
+        // Hello World in Go
+        func main() {
+            fmt.Println("Hello, World!")
+        }
+        ```
 
-               ```java
-               // Hello World in Java
-               public class Main {
-                   public static void main(String[] args) {
-                       System.out.println("Hello, World!");
-                   }
-               }
-               ```
+        ```java
+        // Hello World in Java
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, World!");
+            }
+        }
+        ```
 
-               ```kotlin
-               // Hello World in Kotlin
-               fun main() {
-                   println("Hello, World!")
-               }
-               ```
+        ```kotlin
+        // Hello World in Kotlin
+        fun main() {
+            println("Hello, World!")
+        }
+        ```
 
-               ```python
-               # Hello World in Python
-               def main():
-                   print("Hello, World!")
+        ```python
+        # Hello World in Python
+        def main():
+            print("Hello, World!")
 
-               if __name__ == "__main__":
-                   main()
-               ```
+        if __name__ == "__main__":
+            main()
+        ```
 
-               ```rust
-               // Hello World in Rust
-               fn main() {
-                   println!("Hello, World!");
-               }
-               ```
+        ```rust
+        // Hello World in Rust
+        fn main() {
+            println!("Hello, World!");
+        }
+        ```
 
-               ```swift
-               // Hello World in Swift
-               import Foundation
+        ```swift
+        // Hello World in Swift
+        import Foundation
 
-               print("Hello, World!")
-               ```
+        print("Hello, World!")
+        ```
 
-               ## Tables
+        ## Tables
 
         | **Option** | **Description** |
         | ------ | ----------- |
