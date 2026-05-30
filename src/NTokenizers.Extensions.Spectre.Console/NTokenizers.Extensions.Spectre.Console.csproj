@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
@@ -9,7 +9,7 @@
 		<!-- NuGet package metadata -->
 		<PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
 		<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-		<Version>2.3</Version>
+		<Version>2.4</Version>
 		<Authors>crwsolutions</Authors>
 		<Copyright>(c) crwsolutions</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,7 +21,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
 		<Title>NTokenizers.Extensions.Spectre.Console</Title>
-		<PackageReleaseNotes>Added TOML writer</PackageReleaseNotes>
+		<PackageReleaseNotes>Added C, C++, Go, Java, Kotlin, Python, Rust and Swift writer. And support for xaml and svg</PackageReleaseNotes>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
