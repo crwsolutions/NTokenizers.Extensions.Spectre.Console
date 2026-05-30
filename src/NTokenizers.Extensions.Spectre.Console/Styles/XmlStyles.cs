@@ -47,7 +47,7 @@ public sealed class XmlStyles
     /// <summary>
     /// Gets or sets the style for XML whitespace characters.
     /// </summary>
-    public Style Whitespace { get; set; } = new Style(Color.Yellow);
+    public Style Whitespace { get; set; } = new Style(Color.White);
     
     /// <summary>
     /// Gets or sets the style for XML end element tags.
@@ -57,12 +57,12 @@ public sealed class XmlStyles
     /// <summary>
     /// Gets or sets the style for opening angle brackets (&lt;).
     /// </summary>
-    public Style OpeningAngleBracket { get; set; } = new Style(Color.DeepSkyBlue4_2);
+    public Style OpeningAngleBracket { get; set; } = new Style(Color.Yellow);
     
     /// <summary>
     /// Gets or sets the style for closing angle brackets (&gt;).
     /// </summary>
-    public Style ClosingAngleBracket { get; set; } = new Style(Color.DeepSkyBlue4_2);
+    public Style ClosingAngleBracket { get; set; } = new Style(Color.Yellow);
     
     /// <summary>
     /// Gets or sets the style for XML attribute names.

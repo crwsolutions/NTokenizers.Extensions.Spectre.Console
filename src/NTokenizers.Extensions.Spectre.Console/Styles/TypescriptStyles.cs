@@ -1,5 +1,4 @@
 using Spectre.Console;
-using System.ComponentModel;
 
 namespace NTokenizers.Extensions.Spectre.Console.Styles;
 
@@ -18,12 +17,12 @@ public sealed class TypescriptStyles
     /// <summary>
     ///     Gets or sets the style for open parentheses.
     /// </summary>
-    public Style OpenParenthesis { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style OpenParenthesis { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     ///     Gets or sets the style for close parentheses.
     /// </summary>
-    public Style CloseParenthesis { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style CloseParenthesis { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     ///     Gets or sets the style for commas.
@@ -83,32 +82,32 @@ public sealed class TypescriptStyles
     /// <summary>
     ///     Gets or sets the style for the 'in' keyword.
     /// </summary>
-    public Style In { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style In { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for the 'not in' keyword.
     /// </summary>
-    public Style NotIn { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style NotIn { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for the 'like' keyword.
     /// </summary>
-    public Style Like { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style Like { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for the 'not like' keyword.
     /// </summary>
-    public Style NotLike { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style NotLike { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for the 'limit' keyword.
     /// </summary>
-    public Style Limit { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style Limit { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for the 'match' keyword.
     /// </summary>
-    public Style Match { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style Match { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for sequence terminators.
@@ -123,7 +122,7 @@ public sealed class TypescriptStyles
     /// <summary>
     ///     Gets or sets the style for whitespace.
     /// </summary>
-    public Style Whitespace { get; set; } = new Style(Color.Yellow);
+    public Style Whitespace { get; set; } = new Style(Color.White);
 
     /// <summary>
     ///     Gets or sets the style for date/time values.
@@ -158,7 +157,7 @@ public sealed class TypescriptStyles
     /// <summary>
     ///     Gets or sets the style for the 'between' keyword.
     /// </summary>
-    public Style Between { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style Between { get; set; } = new Style(Color.DeepSkyBlue4_2);
 
     /// <summary>
     ///     Gets or sets the style for undefined values.

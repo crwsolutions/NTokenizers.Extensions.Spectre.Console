@@ -4,7 +4,7 @@ namespace NTokenizers.Extensions.Spectre.Console.Styles;
 
 /// <summary>
 /// Represents the styling configuration for TOML token rendering in Spectre.Console.
-/// This class defines the visual styles for various TOML tokens including identifiers, 
+/// This class defines the visual styles for various TOML tokens including identifiers,
 /// strings, numbers, booleans, date-times, and structural elements to enable style-rich console syntax highlighting.
 /// </summary>
 public sealed class TomlStyles
@@ -22,7 +22,7 @@ public sealed class TomlStyles
     /// <summary>
     /// Gets or sets the style for comment tokens.
     /// </summary>
-    public Style Comment { get; set; } = new Style(Color.Gray);
+    public Style Comment { get; set; } = new Style(Color.Green);
 
     /// <summary>
     /// Gets or sets the style for identifier tokens (keys and table names).
@@ -47,37 +47,37 @@ public sealed class TomlStyles
     /// <summary>
     /// Gets or sets the style for open bracket tokens.
     /// </summary>
-    public Style OpenBracket { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style OpenBracket { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for close bracket tokens.
     /// </summary>
-    public Style CloseBracket { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style CloseBracket { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for open brace tokens.
     /// </summary>
-    public Style OpenBrace { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style OpenBrace { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for close brace tokens.
     /// </summary>
-    public Style CloseBrace { get; set; } = new Style(Color.DeepSkyBlue4_1);
+    public Style CloseBrace { get; set; } = new Style(Color.Yellow);
 
     /// <summary>
     /// Gets or sets the style for string quote tokens.
     /// </summary>
-    public Style StringQuote { get; set; } = new Style(Color.White);
+    public Style StringQuote { get; set; } = new Style(Color.DarkSlateGray1);
 
     /// <summary>
     /// Gets or sets the style for string value tokens.
     /// </summary>
-    public Style StringValue { get; set; } = new Style(Color.White);
+    public Style StringValue { get; set; } = new Style(Color.DarkSlateGray1);
 
     /// <summary>
     /// Gets or sets the style for numeric value tokens.
     /// </summary>
-    public Style Number { get; set; } = new Style(Color.DarkSlateGray1);
+    public Style Number { get; set; } = new Style(Color.Blue);
 
     /// <summary>
     /// Gets or sets the style for boolean value tokens.
