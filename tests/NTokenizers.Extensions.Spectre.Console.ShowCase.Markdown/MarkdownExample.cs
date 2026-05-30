@@ -246,10 +246,80 @@ internal static class MarkdownExample
 
         -- Insert sample data into the Employees table
         INSERT INTO Employees (EmployeeID, FirstName, LastName, Position, Department, Salary)
-        VALUES 
+        VALUES
         (1, 'Alice', 'Smith', 'Software Engineer', 'IT', 75000.00),
         (2, 'Bob', 'Johnson', 'Data Scientist', 'Analytics', 82000.50),
         (3, 'Charlie', 'Williams', 'Product Manager', 'Marketing', 91000.25);
+        ```
+
+        ```c
+        #include <stdio.h>
+
+        // Hello World in C
+        int main() {
+            printf("Hello, World!\n");
+            return 0;
+        }
+        ```
+
+        ```cpp
+        #include <iostream>
+
+        // Hello World in C++
+        int main() {
+            std::cout << "Hello, World!" << std::endl;
+            return 0;
+        }
+        ```
+
+        ```go
+        package main
+
+        import "fmt"
+
+        // Hello World in Go
+        func main() {
+            fmt.Println("Hello, World!")
+        }
+        ```
+
+        ```java
+        // Hello World in Java
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, World!");
+            }
+        }
+        ```
+
+        ```kotlin
+        // Hello World in Kotlin
+        fun main() {
+            println("Hello, World!")
+        }
+        ```
+
+        ```python
+        # Hello World in Python
+        def main():
+            print("Hello, World!")
+
+        if __name__ == "__main__":
+            main()
+        ```
+
+        ```rust
+        // Hello World in Rust
+        fn main() {
+            println!("Hello, World!");
+        }
+        ```
+
+        ```swift
+        // Hello World in Swift
+        import Foundation
+
+        print("Hello, World!")
         ```
 
         ## Tables

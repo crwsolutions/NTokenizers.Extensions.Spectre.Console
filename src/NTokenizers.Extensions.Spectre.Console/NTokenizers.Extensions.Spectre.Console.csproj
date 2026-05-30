@@ -1,39 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsPackable>true</IsPackable>
-    
-    <!-- NuGet package metadata -->
-    <PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
- 	<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-	<Version>2.3</Version>
-    <Authors>crwsolutions</Authors>
-    <Copyright>(c) crwsolutions</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C#, SQL and TOML), Style-rich console syntax highlighting</Description>
-    <PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C#, SQL and TOML), Style-rich console syntax highlighting</PackageDescription>
-    <PackageTags>tokenizer;xml;json;md;markdown;typescript;css;html;c#;csharp;sql;toml;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
-    <RepositoryUrl>https://github.com/crwsolutions/NTokenizers.Extensions.Spectre.Console</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
-    <Title>NTokenizers.Extensions.Spectre.Console</Title>
-    <PackageReleaseNotes>Added TOML writer</PackageReleaseNotes>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>true</IsPackable>
 
-  <ItemGroup>
-    <PackageReference Include="NTokenizers" Version="5.0.0" />
-    <PackageReference Include="Spectre.Console" Version="0.55.2" />
-  </ItemGroup>
+		<!-- NuGet package metadata -->
+		<PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
+		<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
+		<Version>2.3</Version>
+		<Authors>crwsolutions</Authors>
+		<Copyright>(c) crwsolutions</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Description>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C#, SQL, TOML, C, C++, Go, Java, Kotlin, Python, Rust and Swift), Style-rich console syntax highlighting</Description>
+		<PackageDescription>Stream-capable Spectre.Console rendering extensions for NTokenizers (XML, JSON, Markdown, TypeScript, CSS, HTML, C#, SQL, TOML, C, C++, Go, Java, Kotlin, Python, Rust and Swift), Style-rich console syntax highlighting</PackageDescription>
+		<PackageTags>tokenizer;xml;json;md;markdown;typescript;css;html;c#;csharp;sql;toml;c;c++;cpp;go;java;kotlin;python;rust;swift;stream;streaming;parse;parsing;dotnet;spectre.console;console;highlighting</PackageTags>
+		<RepositoryUrl>https://github.com/crwsolutions/NTokenizers.Extensions.Spectre.Console</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
+		<Title>NTokenizers.Extensions.Spectre.Console</Title>
+		<PackageReleaseNotes>Added TOML writer</PackageReleaseNotes>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="NTokenizers" Version="6.0.0" />
+		<PackageReference Include="Spectre.Console" Version="0.55.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 </Project>

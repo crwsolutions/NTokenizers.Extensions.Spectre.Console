@@ -195,6 +195,46 @@ public class MarkdownStyles
     public SqlStyles SqlStyles { get; } = SqlStyles.Default;
 
     /// <summary>
+    /// Gets the C styles used for rendering C code in markdown content.
+    /// </summary>
+    public CStyles CStyles { get; } = CStyles.Default;
+
+    /// <summary>
+    /// Gets the C++ styles used for rendering C++ code in markdown content.
+    /// </summary>
+    public CppStyles CppStyles { get; } = CppStyles.Default;
+
+    /// <summary>
+    /// Gets the Go styles used for rendering Go code in markdown content.
+    /// </summary>
+    public GoStyles GoStyles { get; } = GoStyles.Default;
+
+    /// <summary>
+    /// Gets the Java styles used for rendering Java code in markdown content.
+    /// </summary>
+    public JavaStyles JavaStyles { get; } = JavaStyles.Default;
+
+    /// <summary>
+    /// Gets the Kotlin styles used for rendering Kotlin code in markdown content.
+    /// </summary>
+    public KotlinStyles KotlinStyles { get; } = KotlinStyles.Default;
+
+    /// <summary>
+    /// Gets the Python styles used for rendering Python code in markdown content.
+    /// </summary>
+    public PythonStyles PythonStyles { get; } = PythonStyles.Default;
+
+    /// <summary>
+    /// Gets the Rust styles used for rendering Rust code in markdown content.
+    /// </summary>
+    public RustStyles RustStyles { get; } = RustStyles.Default;
+
+    /// <summary>
+    /// Gets the Swift styles used for rendering Swift code in markdown content.
+    /// </summary>
+    public SwiftStyles SwiftStyles { get; } = SwiftStyles.Default;
+
+    /// <summary>
     /// Gets the heading styles used for rendering markdown headings.
     /// </summary>
     public MarkdownHeadingStyles MarkdownHeadingStyles { get; } = MarkdownHeadingStyles.Default;

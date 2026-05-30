@@ -5,6 +5,14 @@ using System.Diagnostics;
 using Spectre.Console;
 using NTokenizers.Core;
 using NTokenizers.CSharp;
+using NTokenizers.C;
+using NTokenizers.Cpp;
+using NTokenizers.Go;
+using NTokenizers.Java;
+using NTokenizers.Kotlin;
+using NTokenizers.Python;
+using NTokenizers.Rust;
+using NTokenizers.Swift;
 using NTokenizers.Xml;
 using NTokenizers.Typescript;
 using NTokenizers.Css;
@@ -84,7 +92,47 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
             var writer = new SqlWriter(ansiConsole, MarkdownStyles.SqlStyles);
             await writer.WriteAsync(sqlMeta);
         }
-        else if (token.Metadata is GenericCodeBlockMetadata genericMeta)
+        else if (token.Metadata is CCodeBlockMetadata cMeta)
+          {
+              var writer = new CWriter(ansiConsole, MarkdownStyles.CStyles);
+              await writer.WriteAsync(cMeta);
+          }
+          else if (token.Metadata is CppCodeBlockMetadata cppMeta)
+          {
+              var writer = new CppWriter(ansiConsole, MarkdownStyles.CppStyles);
+              await writer.WriteAsync(cppMeta);
+          }
+          else if (token.Metadata is GoCodeBlockMetadata goMeta)
+          {
+              var writer = new GoWriter(ansiConsole, MarkdownStyles.GoStyles);
+              await writer.WriteAsync(goMeta);
+          }
+          else if (token.Metadata is JavaCodeBlockMetadata javaMeta)
+          {
+              var writer = new JavaWriter(ansiConsole, MarkdownStyles.JavaStyles);
+              await writer.WriteAsync(javaMeta);
+          }
+          else if (token.Metadata is KotlinCodeBlockMetadata kotlinMeta)
+          {
+              var writer = new KotlinWriter(ansiConsole, MarkdownStyles.KotlinStyles);
+              await writer.WriteAsync(kotlinMeta);
+          }
+          else if (token.Metadata is PythonCodeBlockMetadata pythonMeta)
+          {
+              var writer = new PythonWriter(ansiConsole, MarkdownStyles.PythonStyles);
+              await writer.WriteAsync(pythonMeta);
+          }
+          else if (token.Metadata is RustCodeBlockMetadata rustMeta)
+          {
+              var writer = new RustWriter(ansiConsole, MarkdownStyles.RustStyles);
+              await writer.WriteAsync(rustMeta);
+          }
+          else if (token.Metadata is SwiftCodeBlockMetadata swiftMeta)
+          {
+              var writer = new SwiftWriter(ansiConsole, MarkdownStyles.SwiftStyles);
+              await writer.WriteAsync(swiftMeta);
+          }
+          else if (token.Metadata is GenericCodeBlockMetadata genericMeta)
         {
             var writer = new GenericWriter(ansiConsole);
             await writer.WriteAsync(genericMeta);
