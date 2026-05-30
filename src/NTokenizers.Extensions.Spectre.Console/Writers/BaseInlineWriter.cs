@@ -5,23 +5,31 @@ using System.Diagnostics;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
-internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiConsole) where TToken : IToken<TTokentype> where TTokentype : Enum
+internal abstract class BaseInlineWriter<TToken, TTokentype> where TToken : IToken<TTokentype> where TTokentype : Enum
 {
+    internal protected readonly IAnsiConsole _ansiConsole;
     internal protected readonly LiveDisplayContext? _liveDisplayContext;
+    internal protected readonly Paragraph _liveParagraph;
 
-    internal BaseInlineWriter(IAnsiConsole ansiConsole, Paragraph? liveParagraph, LiveDisplayContext? ctx) : this(ansiConsole)
+    internal BaseInlineWriter(IAnsiConsole ansiConsole)
     {
+        _ansiConsole = ansiConsole;
+        _liveDisplayContext = null;
+        _liveParagraph = new("");
+    }
+
+    internal BaseInlineWriter(IAnsiConsole ansiConsole, Paragraph? liveParagraph, LiveDisplayContext? ctx)
+    {
+        _ansiConsole = ansiConsole;
         _liveParagraph = liveParagraph ?? new("");
         _liveDisplayContext = ctx;
     }
 
     protected virtual Style GetStyle(TTokentype token) => Style.Plain;
 
-    internal protected readonly Paragraph _liveParagraph = new("");
-
     internal void WriteToken(TToken token)
     {
-        ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
+        _ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
     }
 
     internal void WriteTokenInLiveTarget(TToken token)
@@ -32,7 +40,7 @@ internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiCo
 
     internal async Task WriteAsync(InlineMetadata<TToken> metadata)
     {
-        var liveDisplay = new LiveDisplay(ansiConsole, GetIRendable());
+        var liveDisplay = new LiveDisplay(_ansiConsole, GetIRendable());
         await liveDisplay
         .StartAsync(async ctx =>
         {
@@ -48,13 +56,10 @@ internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiCo
         });
     }
 
-    protected virtual IRenderable GetIRendable()
-    {
-        return new Panel(_liveParagraph)
+    protected virtual IRenderable GetIRendable() => 
+        new Panel(_liveParagraph)
             .Border(new LeftBoxBorder())
-            .BorderStyle(new Style(Color.Green))
-            ;
-    }
+            .BorderStyle(new Style(Color.Green));
 
     protected virtual Task StartedAsync(InlineMetadata<TToken> metadata) => Task.CompletedTask;
 
@@ -74,7 +79,7 @@ internal abstract class BaseInlineWriter<TToken, TTokentype>(IAnsiConsole ansiCo
 
             if (liveParagraph is null)
             {
-                ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
+                _ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
             }
             else
             {

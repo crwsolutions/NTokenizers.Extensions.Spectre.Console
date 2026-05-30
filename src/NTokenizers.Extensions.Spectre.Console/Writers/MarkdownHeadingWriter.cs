@@ -7,10 +7,16 @@ using NTokenizers.Core;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
-internal sealed class MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHeadingStyles styles) : BaseInlineWriter<MarkdownToken, MarkdownTokenType>(ansiConsole)
+internal sealed class MarkdownHeadingWriter : BaseInlineWriter<MarkdownToken, MarkdownTokenType>
 {
-    private Style _style = default!;
+    private readonly MarkdownHeadingStyles _styles;
+    private Style _style = default;
     private int _lenght = 0;
+
+    internal MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHeadingStyles styles) : base(ansiConsole)
+    {
+        _styles = styles;
+    }
 
     protected override Style GetStyle(MarkdownTokenType token) => _style;
 
@@ -21,9 +27,9 @@ internal sealed class MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHe
         {
             _style = meta.Level switch
             {
-                1 => styles.Level1,
-                >= 2 and <= 4 => styles.Level2To4,
-                _ => styles.Level5AndAbove
+                1 => _styles.Level1,
+                >= 2 and <= 4 => _styles.Level2To4,
+                _ => _styles.Level5AndAbove
             };
             if (meta.Level == 1)
             {
@@ -61,7 +67,7 @@ internal sealed class MarkdownHeadingWriter(IAnsiConsole ansiConsole, MarkdownHe
     protected override async Task WriteTokenAsync(Paragraph? liveParagraph, MarkdownToken token, LiveDisplayContext? ctx)
     {
         _lenght += token.Value.Length;
-        await MarkdownWriter.Create(ansiConsole).WriteAsync(liveParagraph, token, _style);
+        await MarkdownWriter.Create(_ansiConsole).WriteAsync(liveParagraph, token, _style);
     }
 
     protected override IRenderable GetIRendable() => _liveParagraph;

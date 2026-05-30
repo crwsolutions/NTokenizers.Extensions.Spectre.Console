@@ -6,15 +6,22 @@ using Spectre.Console;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
-internal class HtmlWriter(IAnsiConsole ansiConsole, HtmlStyles styles) : BaseInlineWriter<HtmlToken, HtmlTokenType>(ansiConsole)
+internal class HtmlWriter : BaseInlineWriter<HtmlToken, HtmlTokenType>
 {
+    private readonly HtmlStyles _styles;
+
+    internal HtmlWriter(IAnsiConsole ansiConsole, HtmlStyles styles) : base(ansiConsole)
+    {
+        _styles = styles;
+    }
+
     internal async Task WriteAsync(HtmlToken token) => await WriteTokenAsync(null, token, null);
 
     protected override async Task WriteTokenAsync(Paragraph? liveTarget, HtmlToken token, LiveDisplayContext? ctx)
     {
         if (token.Metadata is TypeScriptCodeBlockMetadata tsMeta)
         {
-            var writer = new TypescriptWriter(ansiConsole, styles.TypescriptStyles, _liveParagraph, ctx);
+            var writer = new TypescriptWriter(_ansiConsole, _styles.TypescriptStyles, _liveParagraph, ctx);
             if (liveTarget is null)
             {
                 await tsMeta.RegisterInlineTokenHandler(writer.WriteToken);
@@ -26,7 +33,7 @@ internal class HtmlWriter(IAnsiConsole ansiConsole, HtmlStyles styles) : BaseInl
         }
         else if (token.Metadata is CssCodeBlockMetadata cssMeta)
         {
-            var writer = new CssWriter(ansiConsole, styles.CssStyles, _liveParagraph, ctx);
+            var writer = new CssWriter(_ansiConsole, _styles.CssStyles, _liveParagraph, ctx);
             if (liveTarget is null)
             {
                 await cssMeta.RegisterInlineTokenHandler(writer.WriteToken);
@@ -44,18 +51,18 @@ internal class HtmlWriter(IAnsiConsole ansiConsole, HtmlStyles styles) : BaseInl
 
     protected override Style GetStyle(HtmlTokenType token) => token switch
     {
-        HtmlTokenType.ElementName => styles.ElementName,
-        HtmlTokenType.Text => styles.Text,
-        HtmlTokenType.Comment => styles.Comment,
-        HtmlTokenType.DocumentTypeDeclaration => styles.DocumentTypeDeclaration,
-        HtmlTokenType.Whitespace => styles.Whitespace,
-        HtmlTokenType.OpeningAngleBracket => styles.OpeningAngleBracket,
-        HtmlTokenType.ClosingAngleBracket => styles.ClosingAngleBracket,
-        HtmlTokenType.AttributeName => styles.AttributeName,
-        HtmlTokenType.AttributeEquals => styles.AttributeEquals,
-        HtmlTokenType.AttributeValue => styles.AttributeValue,
-        HtmlTokenType.AttributeQuote => styles.AttributeQuote,
-        HtmlTokenType.SelfClosingSlash => styles.SelfClosingSlash,
-        _ => styles.DefaultStyle,
+        HtmlTokenType.ElementName => _styles.ElementName,
+        HtmlTokenType.Text => _styles.Text,
+        HtmlTokenType.Comment => _styles.Comment,
+        HtmlTokenType.DocumentTypeDeclaration => _styles.DocumentTypeDeclaration,
+        HtmlTokenType.Whitespace => _styles.Whitespace,
+        HtmlTokenType.OpeningAngleBracket => _styles.OpeningAngleBracket,
+        HtmlTokenType.ClosingAngleBracket => _styles.ClosingAngleBracket,
+        HtmlTokenType.AttributeName => _styles.AttributeName,
+        HtmlTokenType.AttributeEquals => _styles.AttributeEquals,
+        HtmlTokenType.AttributeValue => _styles.AttributeValue,
+        HtmlTokenType.AttributeQuote => _styles.AttributeQuote,
+        HtmlTokenType.SelfClosingSlash => _styles.SelfClosingSlash,
+        _ => _styles.DefaultStyle,
     };
 }
