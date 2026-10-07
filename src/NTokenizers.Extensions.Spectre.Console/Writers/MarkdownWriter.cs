@@ -82,7 +82,7 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
     /// written directly to the console; other blocks are built into a <see cref="LiveBlock"/> that
     /// is written once, when the block completes. Runs in document order on the parse thread.
     /// </summary>
-    internal void Write(MarkdownToken token)
+    internal async Task WriteAsync(MarkdownToken token)
     {
         // A list's continuation tokens (items, ListEnd) belong to the block currently being built.
         if (_rootBlock is not null && token.TokenType is
@@ -143,11 +143,13 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
                 break;
 
             case MarkdownTokenType.Table:
-                // A root table is built forward-only (like any other block): the inline-token
-                // handler is registered and returns immediately. The tokenizer gates on token
-                // dispatch (it awaits the token callback before streaming sub-document content), so
-                // a blocking table write here would deadlock. The finished table is written when
-                // its content completes.
+                // A root table renders in its own live region that grows as the tokenizer
+                // streams the table content (it is not forward-only: a table restructures as new
+                // rows arrive). The callback is awaited by the parser before the table content
+                // streams, so it must return immediately; the live region is kicked off as a
+                // fire-and-forget task. The region stays open while the tokenizer streams the
+                // content and closes itself when the content completes, so the next root element
+                // cannot overlap it.
                 if (token.Metadata is TableMetadata tableMeta)
                 {
                     if (_lastRootElementWritten)
@@ -155,13 +157,9 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
                         _ansiConsole.WriteLine();
                     }
 
-                    var table = new Table();
-                    new MarkdownTableWriter(MarkdownStyles).WriteTo(table, tableMeta, () =>
-                    {
-                        _ansiConsole.Write(table);
-                        _ansiConsole.WriteLine();
-                        _lastRootElementWritten = true;
-                    });
+                    _lastRootElementWritten = true;
+                    var writer = new MarkdownTableWriter(_ansiConsole, MarkdownStyles);
+                    await writer.WriteAsync(tableMeta);
                 }
                 break;
 

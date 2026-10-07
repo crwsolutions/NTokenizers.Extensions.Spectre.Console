@@ -512,10 +512,10 @@ internal sealed class MarkdownBlockContext
             () => context.Commit());
     }
 
-    // A table is a leaf sub-document: its inline-token handler fills a Spectre Table, and when the
-    // content completes the finished table is added as a row to the current block. Forward-only,
-    // like every other block (a blocking write here would deadlock: the tokenizer gates on token
-    // dispatch before streaming sub-document content).
+    // A table (even nested) renders in its own live region that grows as the tokenizer streams
+    // the table content. The callback is awaited by the parser before the content streams, so it
+    // must return immediately; the live region is kicked off as a fire-and-forget task and closes
+    // itself when the content completes.
     private void WriteTable(MarkdownToken token)
     {
         if (token.Metadata is not TableMetadata meta)
@@ -524,8 +524,8 @@ internal sealed class MarkdownBlockContext
         }
 
         _pendingBlockBreak = true;
-        var table = new Table();
-        new MarkdownTableWriter(_owner.MarkdownStyles).WriteTo(table, meta, () => AddContentRow(table));
+        var writer = new MarkdownTableWriter(_owner.Console, _owner.MarkdownStyles);
+        _ = Task.Run(() => writer.WriteAsync(meta));
     }
 
     /// <summary>Sets the paragraph that receives indented-code content (plain text tokens).</summary>
