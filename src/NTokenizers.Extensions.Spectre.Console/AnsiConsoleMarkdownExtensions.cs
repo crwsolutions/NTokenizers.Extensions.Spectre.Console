@@ -1,4 +1,4 @@
-﻿using NTokenizers.Markdown;
+using NTokenizers.Markdown;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 using NTokenizers.Extensions.Spectre.Console.Writers;
 using System.Text;
@@ -24,25 +24,28 @@ public static class AnsiConsoleMarkdownExtensions
     {
         var markdownWriter = MarkdownWriter.Create(ansiConsole);
         markdownWriter.MarkdownStyles = markdownStyles ?? MarkdownStyles.Default;
+        string result;
         if (encoding is null)
         {
             // Call overload without encoding to preserve BOM detection
-            return await MarkdownTokenizer.Create().ParseAsync(
+            result = await MarkdownTokenizer.Create().ParseAsync(
                 stream,
                 ct,
-                async token => await markdownWriter.WriteAsync(token)
+                token => markdownWriter.Write(token)
             );
         }
         else
         {
             // Call overload with encoding and cancellation token
-            return await MarkdownTokenizer.Create().ParseAsync(
+            result = await MarkdownTokenizer.Create().ParseAsync(
                 stream,
                 encoding,
                 ct,
-                async token => await markdownWriter.WriteAsync(token)
+                token => markdownWriter.Write(token)
             );
         }
+
+        return result;
     }
 
     /// <summary>

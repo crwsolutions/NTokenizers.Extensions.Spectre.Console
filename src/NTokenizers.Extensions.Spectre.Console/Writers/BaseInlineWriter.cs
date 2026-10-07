@@ -1,4 +1,4 @@
-﻿using NTokenizers.Core;
+using NTokenizers.Core;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using System.Diagnostics;
@@ -30,6 +30,17 @@ internal abstract class BaseInlineWriter<TToken, TTokentype> where TToken : ITok
     internal void WriteToken(TToken token)
     {
         _ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
+    }
+
+    /// <summary>
+    /// Appends a token to a <see cref="Paragraph"/> with the token's style. Used to stream code
+    /// block content into a live block (a <c>LiveBlock</c> row) without an owned live display.
+    /// </summary>
+    /// <param name="paragraph">The paragraph to append the token to.</param>
+    /// <param name="token">The token to append.</param>
+    internal virtual void AppendToken(Paragraph paragraph, TToken token)
+    {
+        WriteToken(paragraph, token);
     }
 
     internal void WriteTokenInLiveTarget(TToken token)

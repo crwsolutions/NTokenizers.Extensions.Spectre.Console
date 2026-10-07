@@ -1,3 +1,4 @@
+using NTokenizers.Markdown;
 using Spectre.Console;
 
 namespace NTokenizers.Extensions.Spectre.Console.Styles;
@@ -150,6 +151,43 @@ public class MarkdownStyles
     public Style DefaultStyle { get; set; } = new Style();
 
     /// <summary>
+    /// Returns the style for the given markdown token type, falling back to
+    /// <see cref="DefaultStyle"/> when no specific style is defined.
+    /// </summary>
+    /// <param name="tokenType">The markdown token type to resolve.</param>
+    /// <returns>The style applied to the token.</returns>
+    public Style GetStyleForToken(MarkdownTokenType tokenType) => tokenType switch
+    {
+        MarkdownTokenType.Heading => Heading,
+        MarkdownTokenType.Bold => Bold,
+        MarkdownTokenType.Italic => Italic,
+        MarkdownTokenType.HorizontalRule => HorizontalRule,
+        MarkdownTokenType.CodeInline => CodeInline,
+        MarkdownTokenType.CodeBlock => CodeBlock,
+        MarkdownTokenType.Link => Link,
+        MarkdownTokenType.Image => Image,
+        MarkdownTokenType.Blockquote => Blockquote,
+        MarkdownTokenType.UnorderedListItem => UnorderedListItem,
+        MarkdownTokenType.OrderedListItem => OrderedListItem,
+        MarkdownTokenType.TableCell => TableCell,
+        MarkdownTokenType.Emphasis => Emphasis,
+        MarkdownTokenType.TypographicReplacement => TypographicReplacement,
+        MarkdownTokenType.FootnoteReference => FootnoteReference,
+        MarkdownTokenType.FootnoteDefinition => FootnoteDefinition,
+        MarkdownTokenType.DefinitionTerm => DefinitionTerm,
+        MarkdownTokenType.DefinitionDescription => DefinitionDescription,
+        MarkdownTokenType.Abbreviation => Abbreviation,
+        MarkdownTokenType.CustomContainer => CustomContainer,
+        MarkdownTokenType.HtmlTag => HtmlTag,
+        MarkdownTokenType.Subscript => Subscript,
+        MarkdownTokenType.Superscript => Superscript,
+        MarkdownTokenType.InsertedText => InsertedText,
+        MarkdownTokenType.MarkedText => MarkedText,
+        MarkdownTokenType.Emoji => Emoji,
+        _ => DefaultStyle
+    };
+
+    /// <summary>
     /// Gets the C# styles used for rendering C# code in markdown content.
     /// </summary>
     public CSharpStyles CSharpStyles { get; } = CSharpStyles.Default;
@@ -248,4 +286,25 @@ public class MarkdownStyles
     /// Gets the ordered list item styles used for rendering ordered list items in markdown content.
     /// </summary>
     public MarkdownOrderedListItemStyles MarkdownOrderedListItemStyles { get; } = MarkdownOrderedListItemStyles.Default;
+
+    /// <summary>
+    /// Gets or sets the style of the left border used when rendering blockquotes.
+    /// </summary>
+    public Style QuoteBorder { get; set; } = new Style(Color.Green);
+
+    /// <summary>
+    /// Gets or sets the style of the left border used when rendering fenced and indented code blocks.
+    /// </summary>
+    public Style CodeBorder { get; set; } = new Style(Color.Cyan);
+
+    /// <summary>
+    /// Gets or sets the style used for the language label shown above a fenced or indented code block.
+    /// </summary>
+    public Style CodeLabel { get; set; } = new Style(Color.Cyan);
+
+    /// <summary>
+    /// Gets or sets the style used for the gutter (padding spaces) of list items: the spaces that
+    /// align continuation lines under the first line of the item.
+    /// </summary>
+    public Style ListGutter { get; set; } = new Style(Color.Gray);
 }

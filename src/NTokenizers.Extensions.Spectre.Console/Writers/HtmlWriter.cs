@@ -1,4 +1,4 @@
-﻿using NTokenizers.Css;
+using NTokenizers.Css;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 using NTokenizers.Html;
 using NTokenizers.Typescript;
@@ -47,6 +47,37 @@ internal class HtmlWriter : BaseInlineWriter<HtmlToken, HtmlTokenType>
         {
             await base.WriteTokenAsync(liveTarget, token, ctx);
         }
+    }
+
+    /// <summary>
+    /// Registers the nested style/script handlers on the forward-only paragraph route. The HTML
+    /// tokenizer emits a nested <c>CssCodeBlockMetadata</c> (style) or <c>TypeScriptCodeBlockMetadata</c>
+    /// (script) token and, before streaming that element's content, waits up to its timeout for
+    /// the nested handler to be registered. The registration is synchronous (it signals the
+    /// metadata's handler task immediately); the returned processing task is deliberately not
+    /// awaited, so the callback returns quickly and the tokenizer continues without a deadlock or
+    /// the handler-wait timeout.
+    /// </summary>
+    /// <param name="paragraph">The paragraph to append the nested style/script tokens to.</param>
+    /// <param name="token">The token to append; if it carries nested style/script metadata, the
+    /// nested handler is registered instead of appending the (empty) wrapper value.</param>
+    internal override void AppendToken(Paragraph paragraph, HtmlToken token)
+    {
+        if (token.Metadata is TypeScriptCodeBlockMetadata tsMeta)
+        {
+            var writer = new TypescriptWriter(_ansiConsole, _styles.TypescriptStyles);
+            _ = tsMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t));
+            return;
+        }
+
+        if (token.Metadata is CssCodeBlockMetadata cssMeta)
+        {
+            var writer = new CssWriter(_ansiConsole, _styles.CssStyles);
+            _ = cssMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t));
+            return;
+        }
+
+        base.AppendToken(paragraph, token);
     }
 
     protected override Style GetStyle(HtmlTokenType token) => token switch

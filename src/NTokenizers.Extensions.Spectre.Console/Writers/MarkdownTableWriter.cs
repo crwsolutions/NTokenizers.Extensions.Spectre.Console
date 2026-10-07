@@ -1,72 +1,87 @@
-﻿using NTokenizers.Markdown;
+using NTokenizers.Markdown;
 using NTokenizers.Markdown.Metadata;
 using NTokenizers.Extensions.Spectre.Console.Extensions;
 using NTokenizers.Extensions.Spectre.Console.Styles;
-using System.Diagnostics;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
-internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles markdownStyles)
+/// <summary>
+/// Builds a Spectre <see cref="Table"/> from a <see cref="TableMetadata"/> sub-document,
+/// forward-only: the inline-token handler is registered (and returns immediately, so the
+/// tokenizer — which gates on token dispatch — never waits on a blocked writer) and the
+/// finished table is handed back to the caller's <see cref="WriteTo"/> completion callback
+/// exactly when the table content is complete.
+/// </summary>
+internal class MarkdownTableWriter(MarkdownStyles markdownStyles)
 {
-    internal async Task WriteAsync(TableMetadata metadata)
+    /// <summary>
+    /// Registers the table's inline-token handler on the given metadata. The handler fills the
+    /// given <paramref name="table"/>; <paramref name="onCompleted"/> is invoked (by the parser)
+    /// when the table content is complete.
+    /// </summary>
+    /// <param name="table">The table to fill with the parsed rows and cells.</param>
+    /// <param name="metadata">The table metadata whose inline tokens stream the content.</param>
+    /// <param name="onCompleted">Callback invoked when the table content is complete.</param>
+    internal void WriteTo(Table table, TableMetadata metadata, Action onCompleted)
     {
-        var spectreTable = new Table();
-
         var column = -1;
-        TableRow? currentRow = null;
         var cellParagraphs = new List<Paragraph>();
-        var liveParagraph = new Paragraph();
-        await ansiConsole.Live(spectreTable)
-        .StartAsync(async ctx =>
-        {
-            await metadata.RegisterInlineTokenHandler(async inlineToken =>
-            {
-                if (inlineToken.TokenType == MarkdownTokenType.TableAlignments)
-                {
-                    HandleAlignments(spectreTable, metadata);
-                }
-                else if (inlineToken.TokenType == MarkdownTokenType.TableRow)
-                {
-                    //Handle new row
-                    column = -1;
+        Paragraph? currentCell = null;
 
-                    if (spectreTable.Columns.Count > 0)
-                    { 
-                        cellParagraphs = Enumerable.Range(0, spectreTable.Columns.Count).Select(_ => new Paragraph()).ToList();
-                        currentRow = new TableRow(cellParagraphs);
-                        spectreTable.AddRow(currentRow);
-                    }
-                }
-                else if (inlineToken.TokenType == MarkdownTokenType.TableCell)
-                {
-                    column++;
-                    if (spectreTable.Rows.Count == 0)
+        _ = metadata.RegisterInlineTokenHandler(inlineToken =>
+        {
+            switch (inlineToken.TokenType)
+            {
+                case MarkdownTokenType.TableAlignments:
+                    HandleAlignments(table, metadata);
+                    break;
+
+                case MarkdownTokenType.TableRow:
+                    // Handle new row
+                    column = -1;
+                    currentCell = null;
+
+                    if (table.Columns.Count > 0)
                     {
-                        liveParagraph = new Paragraph();
-                        spectreTable.AddColumn(new TableColumn(liveParagraph));
+                        cellParagraphs = Enumerable.Range(0, table.Columns.Count).Select(_ => new Paragraph()).ToList();
+                        table.AddRow(new TableRow(cellParagraphs));
+                    }
+
+                    break;
+
+                case MarkdownTokenType.TableCell:
+                    column++;
+                    if (table.Rows.Count == 0)
+                    {
+                        // Header row: one column per cell.
+                        currentCell = new Paragraph();
+                        table.AddColumn(new TableColumn(currentCell));
                     }
                     else
                     {
                         if (column < cellParagraphs.Count)
                         {
-                            liveParagraph = cellParagraphs[column];
+                            currentCell = cellParagraphs[column];
                         }
                     }
-                }
-                else //Write cell content
-                {
-                    await WriteTokenAsync(liveParagraph, inlineToken);
-                }
 
-                ctx.Refresh();
-            });
+                    break;
 
-            ctx.Refresh();
-        });
+                default:
+                    // Cell content.
+                    if (currentCell is not null && !string.IsNullOrEmpty(inlineToken.Value))
+                    {
+                        currentCell.Append(inlineToken.Value, markdownStyles.GetStyleForToken(inlineToken.TokenType));
+                    }
+
+                    break;
+            }
+        }, onCompleted);
     }
 
-    private void HandleAlignments(Table spectreTable, TableMetadata metadata)
+    private static void HandleAlignments(Table spectreTable, TableMetadata metadata)
     {
         if (metadata.Alignments == null || metadata.Alignments.Count == 0)
         {
@@ -89,7 +104,7 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
         else
         {
             // Case B: Columns already exist → update only
-            for (int i = 0; i < spectreTable.Columns.Count; i++)
+            for (var i = 0; i < spectreTable.Columns.Count; i++)
             {
                 if (i < aligns.Count)
                 {
@@ -99,7 +114,7 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
             }
 
             // Case C: More alignments than columns → append new columns
-            for (int i = spectreTable.Columns.Count; i < aligns.Count; i++)
+            for (var i = spectreTable.Columns.Count; i < aligns.Count; i++)
             {
                 var col = new TableColumn("")
                 {
@@ -108,15 +123,5 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
                 spectreTable.AddColumn(col);
             }
         }
-    }
-
-    private async Task WriteTokenAsync(Paragraph liveParagraph, MarkdownToken token)
-    {
-        if (string.IsNullOrEmpty(token.Value))
-        {
-            return;
-        }
-        Debug.WriteLine($"Writing token: `{token.Value}` of type `{token.TokenType}`");
-        await MarkdownWriter.Create(ansiConsole).WriteAsync(liveParagraph, token, markdownStyles.TableCell);
     }
 }

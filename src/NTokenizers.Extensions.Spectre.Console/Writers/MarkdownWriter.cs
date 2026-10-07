@@ -1,7 +1,6 @@
-﻿using NTokenizers.Markdown;
+using NTokenizers.Markdown;
 using NTokenizers.Markdown.Metadata;
 using NTokenizers.Extensions.Spectre.Console.Styles;
-using System.Diagnostics;
 using Spectre.Console;
 using NTokenizers.Core;
 using NTokenizers.CSharp;
@@ -22,227 +21,332 @@ using NTokenizers.Sql;
 using NTokenizers.Generic;
 using NTokenizers.Html;
 using NTokenizers.Toml;
-
+using Spectre.Console.Rendering;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
+/// <summary>
+/// The root markdown renderer. It dispatches root-level tokens: plain paragraphs are written
+/// directly to the console (existing behavior), while any other root block (heading, HR,
+/// blockquote, list, fenced/indented code) is built as a growable <see cref="LiveBlock"/> and
+/// written to the console once, forward-only, when the block completes.
+/// </summary>
+/// <remarks>
+/// Forward-only rendering: the renderer never repositions the cursor. A block's nested content is
+/// built by <see cref="MarkdownBlockContext"/> instances (one per nesting level) while the
+/// tokenizer streams it, and the finished <see cref="LiveBlock"/> is emitted a single time when the
+/// block is complete (its sub-document commit, a flat list's <c>ListEnd</c>, or a root horizontal
+/// rule). There is no <c>LiveDisplay</c>, so no cursor repositioning, no cursor hide, and no
+/// region-lifecycle — the callback is synchronous and every state mutation runs in document order
+/// on the parse thread.
+/// </remarks>
 internal class MarkdownWriter(IAnsiConsole ansiConsole)
 {
+    private readonly IAnsiConsole _ansiConsole = ansiConsole;
+
+    // The in-progress root block (if any): the growable LiveBlock being built, and the context that
+    // dispatches its tokens. Written to the console once, forward-only, when the block completes.
+    private LiveBlock? _rootBlock;
+    private MarkdownBlockContext? _rootContext;
+
+    // The plain root paragraph is written directly, token by token (no buffering): a root
+    // paragraph is the span between ParagraphBlockStart and ParagraphBlockEnd, and its tokens are
+    // emitted straight to the console. This flag tracks whether that span is open, so the
+    // whitespace Text tokens that separate blocks (outside a paragraph) are not emitted as content.
+    private bool _inRootParagraph;
+
+    // True when the last character written for the open root paragraph already ends with a line
+    // break. The tokenizer does not emit a block's final newline, so the writer normally adds the
+    // paragraph's closing line break; but if the paragraph content itself ends with a newline
+    // (whitespace preserved verbatim), that line break is already there and is not added again.
+    private bool _rootParagraphEndsNewline;
+
+    // True once any root element (paragraph or block) has been written. A uniform one-blank-line
+    // separation is kept between consecutive root elements: each element ends the stream with
+    // exactly one line break (a block via its render's trailing line break, a paragraph via the
+    // writer's newline), and the element that starts after a previous one is preceded by an
+    // explicit blank line. There is no trailing blank line at end of stream.
+    private bool _lastRootElementWritten;
+
+    /// <summary>Gets or sets the markdown styles.</summary>
     internal MarkdownStyles MarkdownStyles { get; set; } = MarkdownStyles.Default;
 
+    /// <summary>Gets the console.</summary>
+    internal IAnsiConsole Console => _ansiConsole;
+
+    /// <summary>Creates a new markdown writer.</summary>
     internal static MarkdownWriter Create(IAnsiConsole ansiConsole) => new(ansiConsole);
 
-    internal async Task WriteAsync(MarkdownToken token) => 
-        await WriteAsync(null, token, null);
-
-    internal async Task WriteAsync(Paragraph? liveTarget, MarkdownToken token, Style? defaultStyle)
+    /// <summary>
+    /// Dispatches a root-level markdown token. Synchronous and forward-only: plain paragraphs are
+    /// written directly to the console; other blocks are built into a <see cref="LiveBlock"/> that
+    /// is written once, when the block completes. Runs in document order on the parse thread.
+    /// </summary>
+    internal void Write(MarkdownToken token)
     {
-        if (token.Metadata is ICodeBlockMetadata codeBlockMetadata)
+        // A list's continuation tokens (items, ListEnd) belong to the block currently being built.
+        if (_rootBlock is not null && token.TokenType is
+            MarkdownTokenType.OrderedListItem or
+            MarkdownTokenType.UnorderedListItem or
+            MarkdownTokenType.ListEnd)
         {
-            var code = string.IsNullOrWhiteSpace(codeBlockMetadata.Language) ? "code" : codeBlockMetadata.Language;
-            ansiConsole.Write(new Text($"{code}:\n"));
+            _rootContext!.WriteToken(token);
+            return;
         }
-        if (token.Metadata is HeadingMetadata meta)
+
+        switch (token.TokenType)
         {
-            var writer = new MarkdownHeadingWriter(ansiConsole, MarkdownStyles.MarkdownHeadingStyles);
-            await writer.WriteAsync(meta);
-        }
-        else if (token.Metadata is CSharpCodeBlockMetadata csharpMeta)
-        {
-            var writer = new CSharpWriter(ansiConsole, MarkdownStyles.CSharpStyles);
-            await writer.WriteAsync(csharpMeta);
-        }
-        else if (token.Metadata is XmlCodeBlockMetadata xmlMeta)
-        {
-            var writer = new XmlWriter(ansiConsole, MarkdownStyles.XmlStyles);
-            await writer.WriteAsync(xmlMeta);
-        }
-        else if (token.Metadata is HtmlCodeBlockMetadata htmlMeta)
-        {
-            var writer = new HtmlWriter(ansiConsole, MarkdownStyles.HtmlStyles);
-            await writer.WriteAsync(htmlMeta);
-        }
-        else if (token.Metadata is TypeScriptCodeBlockMetadata tsMeta)
-        {
-            var writer = new TypescriptWriter(ansiConsole, MarkdownStyles.TypescriptStyles);
-            await writer.WriteAsync(tsMeta);
-        }
-        else if (token.Metadata is CssCodeBlockMetadata cssMeta)
-        {
-            var writer = new CssWriter(ansiConsole, MarkdownStyles.CssStyles);
-            await writer.WriteAsync(cssMeta);
-        }
-        else if (token.Metadata is JsonCodeBlockMetadata jsonMeta)
-        {
-            var writer = new JsonWriter(ansiConsole, MarkdownStyles.JsonStyles);
-            await writer.WriteAsync(jsonMeta);
-        }
-        else if (token.Metadata is YamlCodeBlockMetadata yamlMeta)
-        {
-            var writer = new YamlWriter(ansiConsole, MarkdownStyles.YamlStyles);
-            await writer.WriteAsync(yamlMeta);
-        }
-        else if (token.Metadata is TomlCodeBlockMetadata tomlMeta)
-        {
-            var writer = new TomlWriter(ansiConsole, MarkdownStyles.TomlStyles);
-            await writer.WriteAsync(tomlMeta);
-        }
-        else if (token.Metadata is SqlCodeBlockMetadata sqlMeta)
-        {
-            var writer = new SqlWriter(ansiConsole, MarkdownStyles.SqlStyles);
-            await writer.WriteAsync(sqlMeta);
-        }
-        else if (token.Metadata is CCodeBlockMetadata cMeta)
-          {
-              var writer = new CWriter(ansiConsole, MarkdownStyles.CStyles);
-              await writer.WriteAsync(cMeta);
-          }
-          else if (token.Metadata is CppCodeBlockMetadata cppMeta)
-          {
-              var writer = new CppWriter(ansiConsole, MarkdownStyles.CppStyles);
-              await writer.WriteAsync(cppMeta);
-          }
-          else if (token.Metadata is GoCodeBlockMetadata goMeta)
-          {
-              var writer = new GoWriter(ansiConsole, MarkdownStyles.GoStyles);
-              await writer.WriteAsync(goMeta);
-          }
-          else if (token.Metadata is JavaCodeBlockMetadata javaMeta)
-          {
-              var writer = new JavaWriter(ansiConsole, MarkdownStyles.JavaStyles);
-              await writer.WriteAsync(javaMeta);
-          }
-          else if (token.Metadata is KotlinCodeBlockMetadata kotlinMeta)
-          {
-              var writer = new KotlinWriter(ansiConsole, MarkdownStyles.KotlinStyles);
-              await writer.WriteAsync(kotlinMeta);
-          }
-          else if (token.Metadata is PythonCodeBlockMetadata pythonMeta)
-          {
-              var writer = new PythonWriter(ansiConsole, MarkdownStyles.PythonStyles);
-              await writer.WriteAsync(pythonMeta);
-          }
-          else if (token.Metadata is RustCodeBlockMetadata rustMeta)
-          {
-              var writer = new RustWriter(ansiConsole, MarkdownStyles.RustStyles);
-              await writer.WriteAsync(rustMeta);
-          }
-          else if (token.Metadata is SwiftCodeBlockMetadata swiftMeta)
-          {
-              var writer = new SwiftWriter(ansiConsole, MarkdownStyles.SwiftStyles);
-              await writer.WriteAsync(swiftMeta);
-          }
-          else if (token.Metadata is GenericCodeBlockMetadata genericMeta)
-        {
-            var writer = new GenericWriter(ansiConsole);
-            await writer.WriteAsync(genericMeta);
-        }
-        else if (token.Metadata is LinkMetadata linkMeta)
-        {
-            var writer = new MarkdownLinkWriter(ansiConsole, MarkdownStyles.Link);
-            writer.Write(linkMeta);
-        }
-        else if (token.Metadata is BlockquoteMetadata blockquoteMeta)
-        {
-            var writer = new MarkdownBlockquoteWriter(ansiConsole);
-            await writer.WriteAsync(blockquoteMeta);
-        }
-        else if (token.Metadata is FootnoteMetadata footnoteMeta)
-        {
-            var writer = new MarkdownFootnoteWriter(ansiConsole);
-            writer.Write(footnoteMeta);
-        }
-        else if (token.Metadata is EmojiMetadata emojiMeta)
-        {
-            var writer = new MarkdownEmojiWriter(ansiConsole);
-            writer.Write(emojiMeta);
-        }
-        else if (token.Metadata is OrderedListItemMetadata orderedListItemMeta)
-        {
-            var writer = new MarkdownOrderedListItemWriter(ansiConsole, MarkdownStyles.MarkdownOrderedListItemStyles);
-            await writer.WriteAsync(orderedListItemMeta);
-        }
-        else if (token.Metadata is ListItemMetadata listItemMeta)
-        {
-            var writer = new MarkdownListItemWriter(ansiConsole, MarkdownStyles.MarkdownListItemStyles);
-            await writer.WriteAsync(listItemMeta);
-        }
-        else if (token.Metadata is TableMetadata tableMeta)
-        {
-            var writer = new MarkdownTableWriter(ansiConsole, MarkdownStyles);
-            await writer.WriteAsync(tableMeta);
-        }
-        else
-        {
-            WriteMarkdown(liveTarget, token, defaultStyle);
+            case MarkdownTokenType.ParagraphBlockStart:
+                // A root element that follows a previous one is separated by an explicit blank
+                // line (each element otherwise ends the stream with exactly one line break).
+                if (_lastRootElementWritten)
+                {
+                    _ansiConsole.WriteLine();
+                }
+
+                _inRootParagraph = true;
+                _rootParagraphEndsNewline = false;
+                break;
+
+            case MarkdownTokenType.ParagraphBlockEnd:
+                if (_inRootParagraph)
+                {
+                    // The paragraph ends the stream with exactly one line break. The tokenizer does
+                    // not emit a block's final newline, so add it unless the paragraph content
+                    // itself already ends with a newline (whitespace preserved verbatim).
+                    if (!_rootParagraphEndsNewline)
+                    {
+                        _ansiConsole.WriteLine();
+                    }
+
+                    _inRootParagraph = false;
+                    _lastRootElementWritten = true;
+                }
+
+                break;
+
+            case MarkdownTokenType.Text:
+                // Newline/whitespace text outside a paragraph is block separation, not content.
+                if (_inRootParagraph)
+                {
+                    WriteRootText(token);
+                }
+                break;
+
+            case MarkdownTokenType.Heading:
+            case MarkdownTokenType.HorizontalRule:
+            case MarkdownTokenType.Blockquote:
+            case MarkdownTokenType.ListStart:
+            case MarkdownTokenType.CodeBlock:
+            case MarkdownTokenType.IndentedCodeBlock:
+                OpenBlock(token);
+                break;
+
+            case MarkdownTokenType.Table:
+                // A root table is built forward-only (like any other block): the inline-token
+                // handler is registered and returns immediately. The tokenizer gates on token
+                // dispatch (it awaits the token callback before streaming sub-document content), so
+                // a blocking table write here would deadlock. The finished table is written when
+                // its content completes.
+                if (token.Metadata is TableMetadata tableMeta)
+                {
+                    if (_lastRootElementWritten)
+                    {
+                        _ansiConsole.WriteLine();
+                    }
+
+                    var table = new Table();
+                    new MarkdownTableWriter(MarkdownStyles).WriteTo(table, tableMeta, () =>
+                    {
+                        _ansiConsole.Write(table);
+                        _ansiConsole.WriteLine();
+                        _lastRootElementWritten = true;
+                    });
+                }
+                break;
+
+            default:
+                // Inline tokens (bold, italic, link, ...) inside a root paragraph, written directly.
+                if (_inRootParagraph)
+                {
+                    WriteRootInline(token);
+                }
+                break;
         }
     }
 
-    private void Write(Paragraph? liveTarget, string value, Style? style = null)
+    /// <summary>
+    /// Begins a new root block: creates its growable <see cref="LiveBlock"/> and a root context
+    /// that builds it, then feeds the block's start token. The block is written forward-only by
+    /// <see cref="CompleteBlock"/> when it completes.
+    /// </summary>
+    private void OpenBlock(MarkdownToken token)
     {
-        if (string.IsNullOrEmpty(value))
+        // A root block that follows a previous element is separated by an explicit blank line (the
+        // previous element ends the stream with exactly one line break; this adds the blank line).
+        if (_lastRootElementWritten)
+        {
+            _ansiConsole.WriteLine();
+        }
+
+        var block = LiveBlock.CreateBare();
+        _rootBlock = block;
+        // The root context owns the block: it hands the completion (write) signal to the outermost
+        // sub-document block, or keeps it for a flat block (list / horizontal rule).
+        _rootContext = new MarkdownBlockContext(this, block, CompleteBlock, ownsRegion: true);
+        _rootContext.WriteToken(token);
+    }
+
+    /// <summary>
+    /// Writes the finished root block to the console once (forward-only) and clears the in-progress
+    /// state. Invoked exactly when the block's outermost content is complete, so the block is fully
+    /// built before it is emitted and in document order. No trailing newline: every row of a
+    /// <see cref="LiveBlock"/> already ends with a line break, and any following element writes its
+    /// own separating blank line.
+    /// </summary>
+    private void CompleteBlock()
+    {
+        if (_rootBlock is not null)
+        {
+            _ansiConsole.Write(_rootBlock);
+            _lastRootElementWritten = true;
+        }
+
+        _rootBlock = null;
+        _rootContext = null;
+    }
+
+    private void WriteRootInline(MarkdownToken token)
+    {
+        if (string.IsNullOrEmpty(token.Value))
         {
             return;
         }
-        Debug.WriteLine($"Writing token: `{value}` with style `[{style?.Foreground}/{style?.Background}]`");
 
-        var text = Markup.Escape(value);
-        if (liveTarget is not null)
+        // A link/image with URL metadata is rendered by the dedicated link writer (URL as the
+        // display text when the label is absent), matching the previous root behavior.
+        if (token.Metadata is LinkMetadata linkMeta)
         {
-            liveTarget.Append(text, style);
+            new MarkdownLinkWriter(_ansiConsole, MarkdownStyles.GetStyleForToken(token.TokenType)).Write(linkMeta);
+            return;
         }
-        else if (style is not null)
-        {
-            ansiConsole.Write(new Markup(text, style));
-        }
-        else
-        {
-            ansiConsole.Write(new Text(text));
-        }
+
+        // Any other root inline (bold, italic, code, ...) is written directly as styled markup.
+        _ansiConsole.Write(new Markup(Markup.Escape(token.Value), MarkdownStyles.GetStyleForToken(token.TokenType)));
+        _rootParagraphEndsNewline = token.Value[token.Value.Length - 1] is '\n' or '\r';
     }
 
-    internal void WriteMarkdown(Paragraph? liveTarget, MarkdownToken token, Style? defaultStyle)
+    // Plain root-paragraph content is written verbatim: every character that arrives is
+    // emitted, including a soft-break '\n' (which renders as a line break). Blocks are a
+    // different story: the tokenizer strips whitespace and does not emit a block's final
+    // newline, so a block's rows are newline-terminated by the LiveBlock itself.
+    private void WriteRootText(MarkdownToken token)
     {
-        var style = token.TokenType switch
+        if (string.IsNullOrEmpty(token.Value))
         {
-            MarkdownTokenType.Heading => MarkdownStyles.Heading,
-            MarkdownTokenType.Bold => MarkdownStyles.Bold,
-            MarkdownTokenType.Italic => MarkdownStyles.Italic,
-            MarkdownTokenType.HorizontalRule => MarkdownStyles.HorizontalRule,
-            MarkdownTokenType.CodeInline => MarkdownStyles.CodeInline,
-            MarkdownTokenType.CodeBlock => MarkdownStyles.CodeBlock,
-            MarkdownTokenType.Link => MarkdownStyles.Link,
-            MarkdownTokenType.Image => MarkdownStyles.Image,
-            MarkdownTokenType.Blockquote => MarkdownStyles.Blockquote,
-            MarkdownTokenType.UnorderedListItem => MarkdownStyles.UnorderedListItem,
-            MarkdownTokenType.OrderedListItem => MarkdownStyles.OrderedListItem,
-            MarkdownTokenType.TableCell => MarkdownStyles.TableCell,
-            MarkdownTokenType.Emphasis => MarkdownStyles.Emphasis,
-            MarkdownTokenType.TypographicReplacement => MarkdownStyles.TypographicReplacement,
-            MarkdownTokenType.FootnoteReference => MarkdownStyles.FootnoteReference,
-            MarkdownTokenType.FootnoteDefinition => MarkdownStyles.FootnoteDefinition,
-            MarkdownTokenType.DefinitionTerm => MarkdownStyles.DefinitionTerm,
-            MarkdownTokenType.DefinitionDescription => MarkdownStyles.DefinitionDescription,
-            MarkdownTokenType.Abbreviation => MarkdownStyles.Abbreviation,
-            MarkdownTokenType.CustomContainer => MarkdownStyles.CustomContainer,
-            MarkdownTokenType.HtmlTag => MarkdownStyles.HtmlTag,
-            MarkdownTokenType.Subscript => MarkdownStyles.Subscript,
-            MarkdownTokenType.Superscript => MarkdownStyles.Superscript,
-            MarkdownTokenType.InsertedText => MarkdownStyles.InsertedText,
-            MarkdownTokenType.MarkedText => MarkdownStyles.MarkedText,
-            MarkdownTokenType.Emoji => MarkdownStyles.Emoji,
-            _ => defaultStyle ?? MarkdownStyles.DefaultStyle
-        };
+            return;
+        }
 
-        if (token.TokenType == MarkdownTokenType.HorizontalRule)
+        _ansiConsole.Write(new Markup(Markup.Escape(token.Value), MarkdownStyles.DefaultStyle));
+        _rootParagraphEndsNewline = token.Value[token.Value.Length - 1] is '\n' or '\r';
+    }
+
+    /// <summary>
+    /// Wires a fenced code block's language-specific tokens into the given content paragraph,
+    /// selecting the matching language writer (the same language set the previous implementation
+    /// dispatched over). The block's <c>onInlinesCompleted</c> callback commits the context.
+    /// </summary>
+    internal Task WireFencedCode(ICodeBlockMetadata meta, Paragraph paragraph, MarkdownBlockContext context)
+    {
+        Action commit = () => context.Commit();
+        if (meta is CSharpCodeBlockMetadata csharpMeta)
         {
-            var value = new string('─', System.Console.WindowWidth);
-            Write(liveTarget, value, style);
+            var writer = new CSharpWriter(_ansiConsole, MarkdownStyles.CSharpStyles);
+            return csharpMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
         }
-        else
+        if (meta is XmlCodeBlockMetadata xmlMeta)
         {
-            Write(liveTarget, token.Value, style);
+            var writer = new XmlWriter(_ansiConsole, MarkdownStyles.XmlStyles);
+            return xmlMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
         }
+        if (meta is HtmlCodeBlockMetadata htmlMeta)
+        {
+            var writer = new HtmlWriter(_ansiConsole, MarkdownStyles.HtmlStyles);
+            return htmlMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is TypeScriptCodeBlockMetadata tsMeta)
+        {
+            var writer = new TypescriptWriter(_ansiConsole, MarkdownStyles.TypescriptStyles);
+            return tsMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is CssCodeBlockMetadata cssMeta)
+        {
+            var writer = new CssWriter(_ansiConsole, MarkdownStyles.CssStyles);
+            return cssMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is JsonCodeBlockMetadata jsonMeta)
+        {
+            var writer = new JsonWriter(_ansiConsole, MarkdownStyles.JsonStyles);
+            return jsonMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is YamlCodeBlockMetadata yamlMeta)
+        {
+            var writer = new YamlWriter(_ansiConsole, MarkdownStyles.YamlStyles);
+            return yamlMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is TomlCodeBlockMetadata tomlMeta)
+        {
+            var writer = new TomlWriter(_ansiConsole, MarkdownStyles.TomlStyles);
+            return tomlMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is SqlCodeBlockMetadata sqlMeta)
+        {
+            var writer = new SqlWriter(_ansiConsole, MarkdownStyles.SqlStyles);
+            return sqlMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is CCodeBlockMetadata cMeta)
+        {
+            var writer = new CWriter(_ansiConsole, MarkdownStyles.CStyles);
+            return cMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is CppCodeBlockMetadata cppMeta)
+        {
+            var writer = new CppWriter(_ansiConsole, MarkdownStyles.CppStyles);
+            return cppMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is GoCodeBlockMetadata goMeta)
+        {
+            var writer = new GoWriter(_ansiConsole, MarkdownStyles.GoStyles);
+            return goMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is JavaCodeBlockMetadata javaMeta)
+        {
+            var writer = new JavaWriter(_ansiConsole, MarkdownStyles.JavaStyles);
+            return javaMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is KotlinCodeBlockMetadata kotlinMeta)
+        {
+            var writer = new KotlinWriter(_ansiConsole, MarkdownStyles.KotlinStyles);
+            return kotlinMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is PythonCodeBlockMetadata pythonMeta)
+        {
+            var writer = new PythonWriter(_ansiConsole, MarkdownStyles.PythonStyles);
+            return pythonMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is RustCodeBlockMetadata rustMeta)
+        {
+            var writer = new RustWriter(_ansiConsole, MarkdownStyles.RustStyles);
+            return rustMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+        if (meta is SwiftCodeBlockMetadata swiftMeta)
+        {
+            var writer = new SwiftWriter(_ansiConsole, MarkdownStyles.SwiftStyles);
+            return swiftMeta.RegisterInlineTokenHandler(t => writer.AppendToken(paragraph, t), commit);
+        }
+
+        // Generic fallback: plain markdown-token code block.
+        var genericWriter = new GenericWriter(_ansiConsole);
+        return ((InlineMetadata<MarkdownToken>)meta).RegisterInlineTokenHandler(t => genericWriter.AppendToken(paragraph, t), commit);
     }
 }
-
