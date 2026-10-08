@@ -26,7 +26,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NTokenizers" Version="7.0.0-local.5" />
+		<PackageReference Include="NTokenizers" Version="7.0.0-local.6" />
 		<PackageReference Include="Spectre.Console" Version="0.55.2" />
 	</ItemGroup>
 
