@@ -9,7 +9,9 @@ using System.Text;
 var markdownString = MarkdownExample.GetSampleText();
 
 var customMarkdownStyles = MarkdownStyles.Default;
-customMarkdownStyles.Heading = new Style(Color.Orange1);
+customMarkdownStyles.MarkdownHeadingStyles.Level1 = Color.Orange1;
+customMarkdownStyles.MarkdownHeadingStyles.Level2To4 = Color.Orange3;
+customMarkdownStyles.MarkdownHeadingStyles.Level5AndAbove = Color.Orange4;
 
 // Method 1: WriteMarkdown with string (default styles)
 Console.WriteLine("=== WriteMarkdown with string (default styles) ===");

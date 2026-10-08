@@ -16,11 +16,6 @@ public class MarkdownStyles
     public static MarkdownStyles Default => new();
 
     /// <summary>
-    /// Gets or sets the style for headings in markdown content.
-    /// </summary>
-    public Style Heading { get; set; } = new Style(Color.Yellow);
-
-    /// <summary>
     /// Gets or sets the style for bold text in markdown content.
     /// </summary>
     public Style Bold { get; set; } = new Style(Color.Blue, decoration: Decoration.Bold);
@@ -158,7 +153,6 @@ public class MarkdownStyles
     /// <returns>The style applied to the token.</returns>
     public Style GetStyleForToken(MarkdownTokenType tokenType) => tokenType switch
     {
-        MarkdownTokenType.Heading => Heading,
         MarkdownTokenType.Bold => Bold,
         MarkdownTokenType.Italic => Italic,
         MarkdownTokenType.HorizontalRule => HorizontalRule,
