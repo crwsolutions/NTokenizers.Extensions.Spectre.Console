@@ -440,7 +440,7 @@ internal static class MarkdownExample
 
         It converts "HTML", but keep intact partial entries like "xxxHTMLyyy" and so on.
 
-        *[HTML]: Hyper Text Markup Language
+        \*[HTML]: Hyper Text Markup Language
 
         [Abbreviations](https://github.com/markdown-it/markdown-it-abbr)
 
