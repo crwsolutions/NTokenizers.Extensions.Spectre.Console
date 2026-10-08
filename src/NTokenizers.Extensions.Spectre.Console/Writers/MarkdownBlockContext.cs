@@ -65,6 +65,10 @@ internal sealed class MarkdownBlockContext
     private bool _inParagraph;
     private bool _pendingBlockBreak;
 
+    // True once a list item's own paragraph has closed and no list of this context is open: the
+    // next ListStart is a nested list continuing the item, not a sibling block.
+    private bool _awaitingNestedList;
+
     // Heading state (active only on the heading's own context).
     private bool _headingActive;
     private int _headingLevel;
@@ -110,11 +114,34 @@ internal sealed class MarkdownBlockContext
     internal void WriteToken(MarkdownToken token)
     {
         // Write the block separation that follows a closed paragraph, before the next token. It is
-        // intentionally omitted when the paragraph is the last token (end of content).
+        // intentionally omitted when the paragraph is the last token (end of content, the break is
+        // dropped by Commit) and, in a list item, when the closed paragraph is followed by a nested
+        // list: the list's start is a continuation of the item, not a sibling block. The
+        // whitespace Text tokens between the item's text and the nested list's start carry no
+        // content, so the pending break is deferred to the nested list's start, which ends the
+        // item's line without emitting the gutter-only blank line.
         if (_pendingBlockBreak)
         {
-            _pendingBlockBreak = false;
-            _stream.BlankLine();
+            var type = token.TokenType;
+            var deferToNestedList = _kind is BlockKind.Item &&
+                type is MarkdownTokenType.Text &&
+                string.IsNullOrWhiteSpace(token.Value);
+            if (!deferToNestedList)
+            {
+                var nestedListContinuation = _awaitingNestedList && type is MarkdownTokenType.ListStart;
+                _pendingBlockBreak = false;
+                _awaitingNestedList = false;
+                if (nestedListContinuation)
+                {
+                    // End the item's line (its marker frame moves to its gutter form) without
+                    // emitting the gutter-only blank line: the nested list continues the item.
+                    _stream.EnsureNewLine();
+                }
+                else
+                {
+                    _stream.BlankLine();
+                }
+            }
         }
 
         switch (token.TokenType)
@@ -128,6 +155,12 @@ internal sealed class MarkdownBlockContext
                 {
                     _inParagraph = false;
                     _pendingBlockBreak = true;
+                    if (_kind is BlockKind.Item)
+                    {
+                        // A list that follows the item's own paragraph (no list of this context
+                        // was open when it closed) is a nested list: a continuation of the item.
+                        _awaitingNestedList = true;
+                    }
                 }
 
                 break;
@@ -172,7 +205,10 @@ internal sealed class MarkdownBlockContext
 
             case MarkdownTokenType.ListStart:
                 // A list is flat: ListStart is a marker only; the items (sub-documents) own their
-                // marker frames.
+                // marker frames. A list following the item's own paragraph is a continuation; any
+                // other list (e.g. after a nested list ended) is a sibling block and keeps its
+                // blank-line separation, flushed above.
+                _awaitingNestedList = false;
                 break;
 
             case MarkdownTokenType.ListEnd:
