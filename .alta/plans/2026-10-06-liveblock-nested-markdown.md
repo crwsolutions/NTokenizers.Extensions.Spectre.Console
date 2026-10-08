@@ -1,6 +1,6 @@
 # LiveBlock — geneste markdown-blocken renderen in Spectre.Console
 
-- Status: Approved
+- Status: Done
 - Plan file: `.alta/plans/2026-10-06-liveblock-nested-markdown.md`
 - Created: 2026-10-06
 - Task: Bouw een growable `LiveBlock`-IRenderable (stackmachine, oneindige nestingsdiepte) en koppel de `MarkdownWriter`-dispatch daarop aan, zodat geneste blockquotes/lijsten/codeblok-kens correct live renderen tegen NTokenizers 7.0.
@@ -49,6 +49,42 @@
 **Verificatie.** `dotnet build NTokenizers.Extensions.Spectre.Console.slnx` → 0 fouten / 0 warnings. Headless `tmp/verify` (`Spectre.Console.Testing` `TestConsole`): 150/150 én 100/100 én 50/50 iteraties `ok`, geen NRE, geen timeout, geen deadlock. Layout geverifieerd: `csharp:`-label binnen de regio (geen console-direct-write), groene `│`-quote-rand (dubbel `│ │` voor geneste quote), `- `/` 1. `-gutter, `=====`-onderstreping van headings, géén `>`-quote-markers. `MdDiag`-diagnostics verwijderd uit productiesources. `tmp/` blijft geïgnoreerd (niet committen).
 
 > **Bekend detail (geen blocker, residual).** De `TestConsole`-captuur toont herhalingen omdat `TestConsole.Output` elke live-regio `Refresh()`-frame bijvoegt; op een écht terminal overwrite de ANSI-cursor-opmaak in place, dus is alleen de laatste frame zichtbaar. De content van de laatste frame is correct. Eindtoets tegen stabiel `NTokenizers 7.0.0` (csproj-reference dan op `7.0.0`) blijft staan zodra die op NuGet staat (R4).
+
+
+## Final state (2026-10-07) — per-token streaming (Option B), voltooid & geverifieerd
+
+**Besluit (Colin, 2026-10-07).** De forward-only `LiveBlock`-buffer (bouwen-als-blok-compleet, één `console.Write`) wordt vervangen door **per-token direct schrijven**: elk token wordt geschreven zodra het aankomt, met de linkerkant (randen, gutters, markers) samengesteld uit de actieve nestingsstapel, en een regelewissel alleen wanneer een token niet meer past op de lopende regel. **Tabel blijft ongewijzigd** (eigen `Live`/growing regio, `MarkdownTableWriter`).
+
+**Reden.** Buffer-then-render toont blok-content pas wanneer het blok compleet is; per-token streaming toont content zo snel als de tokenizer stroomt, zonder flickering (geen cursor-repositioning) en zonder de (0,0)-bug-klasse (forward-only, één keer per token).
+
+**Nieuwe renderlaag: `src/.../Writers/MarkdownStream.cs` (nieuw bestand).**
+- Eén gedeelde `MarkdownStream` per root-blok; een stapel van `BlockFrame`-bijdragen ("linkerkant") samengesteld uit de actieve nesting-laag.
+- `BlockFrame` (sealed, één model — geen subtype-hiërarchie): `Style`, `FirstLine`, `Continuation`, `FirstLineDone`. Border (quote/code) draagt dezelfde segment op elke regel; een item draagt zijn marker op de eerste regel en gutter-spaces daarna.
+- `PushBorder(style, border)`, `PushItem(style, marker)`, `Pop()`. **Frames worden opgeslagen in een `List` (push-volgorde = outermost first).** Dit was de cruciale bug-fix: met een `Stack<T>` enumererde .NET top-first (innermost first), waardoor de prefix in omgekeerde volgorde werd geschreven (genest item ` -    nested a` i.p.v. `    - nested a`).
+- Per-token `Write(text, style)`: split op `\n`; per segment `EnsurePrefixed()` (schrijf de samengestelde linkerkant als nog niet geschreven), en wrap alleen wanneer `_content > 0 && _column + part.Length > Width` (een segment breder dan de hele regel overloopt gewoon, wordt niet gesplitst).
+- `Width` is **cached** en veerkrachtig: `Console.IsOutputRedirected ? 80 : WindowWidth`, met een `try/catch`-fallback op 80. Dit lost de `System.Console.WindowWidth` → `IOException ("The handle is invalid.")` op geredirigeerde stdout (een productie-issue, niet alleen test-harness).
+- `BlankLine()` (linkerkant-alleen regel = blokscheiding), `Finish()` (laatste regel afsluiten), `EnsureNewLine()`, `AvailableWidth` (gebruikt door HR).
+
+**Herkabeld naar `MarkdownStream`:**
+- `MarkdownBlockContext.cs` — gebruikt nu `MarkdownStream` i.p.v. de oude `LiveBlock`-buffer; duwt/popt frames op de gedeelde stream per `BlockKind` (Quote/Code/Item); `WriteToken` streamt per token; `Commit()` poppt de frame van het blok.
+- `MarkdownWriter.cs` — root-blok lifecycle via `MarkdownStream` (`OpenBlock` maakt een `new MarkdownStream(_ansiConsole)`); root plain paragrafen blijven **direct** (onveranderd); `WireFencedCode` streamt via `WriteToStream`.
+- `BaseInlineWriter.cs` / `HtmlWriter.cs` — fenced-code en nested HTML `<style>`/`<script>` content streamen via `WriteToStream(MarkdownStream, token)` (raw text, geen dubbele escaping — de stream escape zelf).
+
+**Wijzigde bestanden (t.o.v. `f496744`):** `MarkdownStream.cs` (nieuw), `MarkdownBlockContext.cs`, `MarkdownWriter.cs`, `BaseInlineWriter.cs`, `HtmlWriter.cs`, `tests/.../ShowCase.Markdown/Program.cs` (door Colin gecommentarieerde showcase-methoden — intentief, niet aangerakt). **Niet aangerakt:** `MarkdownTableWriter.cs` (0 diff), `AnsiConsoleMarkdownExtensions.cs` (async callback-model ongewijzigd), `LiveBlock.cs`.
+
+**Verificatie (2026-10-07).**
+- `dotnet build NTokenizers.Extensions.Spectre.Console.slnx` → 0 fouten / 0 warnings.
+- **Volledige pariteit met `f496744`**: de nieuwe streaming-output komt regel-voor-regel overeen met de oude buffer-then-render-output voor het volledige nested sample (heading+`===`, quote `│`, lijst `+ item` / `    - nested`, `csharp:`-label + gerande code, root-spacing, geen trailing blank line). Onafhankelijk bevestigd door de oude `f496744` via een `git worktree` te renderen en te diffen (zelfde NTokenizers `7.0.0-local.5`).
+- **Redirected-stdout crash opgelost**: het nested sample rendert nu netjes naar een geredirigeerde stdout (voorheen crashte op `WindowWidth`).
+- **HTML `<style>`/`<script>`**: 77 ms (geen 2s handler-wait), nested handlers geregistreerd, content en closing tags geredend.
+- **Nested-content timing**: 30 ms (per-token, geen buffering tot blokkeinde).
+- `tmp/` blijft geïgnoreerd/scratch; tijdelijke `baseline.txt`/`trace.txt`/`new*.txt` opgeruimd; git-status toont alleen de beoogde bronveranderingen + `MarkdownStream.cs`.
+
+**Residual / apart (niet in deze scope).**
+- `LiveBlock.cs` is na de streaming-rewrite **dead code** (alleen nog eigen factory's + doc-comments; geen call-sites meer in de markdown-pad — de tabel gebruikt `MarkdownTableWriter`, niet `LiveBlock`). Geïntroduceerd in `8fa0805` (vóór deze task). Verwijderen is een aparte opruiming; per "meest consistente, kleinste verandering" en "niet onverwacht verwijderen" niet automatisch verwijderd — door Colin bekrachtigen.
+- `BaseInlineWriter.AppendToken` lijkt onbruikt (alleen `WriteToStream`/`WriteTokenInLiveTarget` worden gebruikt). Eveneens apart.
+- De bekende (losse, niet-deze-pad) crash: een `Live`-tabel crasht op geredirigeerde stdout (`Cursor.Hide`/`Console`-handle) — daarom staat de tabel niet in de headless-captuur; op een echt terminal werkt de tabel (Colin).
+- Eindcheck tegen stabiel NTokenizers `7.0.0` (csproj dan op `7.0.0`) blijft staan zodra die op NuGet staat.
 
 
 ## Objective

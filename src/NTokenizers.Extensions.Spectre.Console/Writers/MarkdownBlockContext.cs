@@ -3,36 +3,55 @@ using NTokenizers.Markdown;
 using NTokenizers.Markdown.Metadata;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 using Spectre.Console;
-using Spectre.Console.Rendering;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
 /// <summary>
-/// One rendering context per markdown nesting level (mirrors the ToHtml architecture where each
-/// <c>BlockquoteHtmlWriter</c> owns a fresh <c>MarkdownBlockTokenDispatcher</c>). A context owns
-/// the paragraph state, the pending block separation, the heading state, and the
-/// <see cref="LiveBlock"/> that receives its content. It is a stack machine that mirrors the
-/// deeply-nested token stream.
+/// The kind of block a <see cref="MarkdownBlockContext"/> owns. It determines the left-side frame
+/// the context pushes when it opens (and pops when it completes).
+/// </summary>
+internal enum BlockKind
+{
+    /// <summary>No left-side frame (a root block, a heading, or a flat list).</summary>
+    None,
+
+    /// <summary>A blockquote: a green left border on every line of its content.</summary>
+    Quote,
+
+    /// <summary>A fenced/indented code block: a cyan left border on every line of its content.</summary>
+    Code,
+
+    /// <summary>A list item: a marker on the item's first line, gutter spaces thereafter.</summary>
+    Item
+}
+
+/// <summary>
+/// One rendering context per markdown nesting level. A context owns the paragraph state, the
+/// pending block separation, the heading state, and (per <see cref="BlockKind"/>) the left-side
+/// frame it pushes onto the shared <see cref="MarkdownStream"/>. All levels of a root block share
+/// one <see cref="MarkdownStream"/>: a block pushes its frame when it opens and pops it when it
+/// completes, so the composed left side always reflects the active nesting. Every token is written
+/// to the console as it arrives (forward-only), so content appears as fast as the tokenizer
+/// streams it.
 /// </summary>
 /// <remarks>
-/// Whitespace principle (from ToHtml): the writer only ever ADDS a block separation, it never
-/// removes whitespace from the stream. A pending separation is written before the next token and
-/// dropped when the container's content completes.
-///
 /// Sub-document blocks (blockquote, fenced/indented code, heading, list item) register a child
-/// context as the metadata's inline-token handler: start administration, then
-/// <c>RegisterInlineTokenHandler(token =&gt; context.WriteToken(token), commit)</c>, where commit is
-/// the end administration. The region closes exactly once, when the region's outermost block
-/// completes (a sub-document's commit, a flat list's <c>ListEnd</c>, or a root horizontal rule).
+/// context as the metadata's inline-token handler. The child context pushes its frame in its
+/// constructor, dispatches the sub-document tokens, and pops the frame on <see cref="Commit"/>.
+/// The root block's stream is finished exactly once, when the outermost block completes
+/// (a sub-document's commit, a flat list's <c>ListEnd</c>, or a root horizontal rule).
 ///
 /// Lists are flat (their <c>ListStart</c>/<c>ListEnd</c> tokens are not sub-documents): the owning
-/// context handles <c>ListStart</c>, items and <c>ListEnd</c> inline.
+/// context handles <c>ListStart</c> (marker only) and <c>ListEnd</c> inline; each item is a child
+/// context that owns its marker frame.
 /// </remarks>
 internal sealed class MarkdownBlockContext
 {
     private readonly MarkdownWriter _owner;
-    private readonly LiveBlock _region;
-    private readonly string? _itemPrefix;
+    private readonly MarkdownStream _stream;
+    private readonly BlockKind _kind;
+    private readonly string? _itemMarker;
+    private readonly Style? _itemMarkerStyle;
 
     // The region-close signal. Non-null on the root context (region owner) and, after handoff, on
     // the outermost block's child context. Fired exactly once when the outermost block completes.
@@ -42,79 +61,80 @@ internal sealed class MarkdownBlockContext
     // outermost sub-document block, or keep it to fire on a flat block (list / horizontal rule).
     private bool _ownsRegion;
 
-    // Per-level paragraph / separation state (mirrors MarkdownBlockTokenDispatcher).
+    // Per-level paragraph / separation state.
     private bool _inParagraph;
     private bool _pendingBlockBreak;
-    private Paragraph? _currentParagraph;
-
-    // Item state (set when this context renders a list item's content).
-    private bool _itemFirstLineDone;
 
     // Heading state (active only on the heading's own context).
     private bool _headingActive;
     private int _headingLevel;
-    private Style _headingStyle = new Style();
+    private Style _headingStyle = new();
     private int _headingTextLength;
-    private Paragraph? _headingParagraph;
-
-    // Indented-code content paragraph (set when this context renders an indented code block).
-    private Paragraph? _codeContentParagraph;
-
-    // The list LiveBlock while dispatching the tokens of a list (list state is flat).
-    private LiveBlock? _activeList;
 
     internal MarkdownBlockContext(
         MarkdownWriter owner,
-        LiveBlock region,
+        MarkdownStream stream,
         Action? regionClose = null,
         bool ownsRegion = false,
-        string? itemPrefix = null)
+        BlockKind kind = BlockKind.None,
+        string? itemMarker = null,
+        Style? itemMarkerStyle = null)
     {
         _owner = owner;
-        _region = region;
+        _stream = stream;
         _regionClose = regionClose;
         _ownsRegion = ownsRegion;
-        _itemPrefix = itemPrefix;
+        _kind = kind;
+        _itemMarker = itemMarker;
+        _itemMarkerStyle = itemMarkerStyle;
+
+        // Push the block's left-side frame when it opens.
+        switch (kind)
+        {
+            case BlockKind.Quote:
+                _stream.PushBorder(owner.MarkdownStyles.QuoteBorder, '│');
+                break;
+            case BlockKind.Code:
+                _stream.PushBorder(owner.MarkdownStyles.CodeBorder, '│');
+                break;
+            case BlockKind.Item when itemMarker is not null:
+                _stream.PushItem(itemMarkerStyle ?? new(), itemMarker);
+                break;
+        }
     }
 
     /// <summary>
     /// Dispatches a markdown token, routing block tokens to dedicated handling (registering a
-    /// child context for sub-document blocks) and inline tokens to the active paragraph. Mirrors
-    /// <c>MarkdownBlockTokenDispatcher.WriteTokenAsync</c>.
+    /// child context for sub-document blocks) and inline/content tokens directly to the stream.
     /// </summary>
     internal void WriteToken(MarkdownToken token)
     {
-        // Write the block separation that follows a closed paragraph, before the next token. It
-        // is intentionally omitted when the paragraph is the last token (end of content).
+        // Write the block separation that follows a closed paragraph, before the next token. It is
+        // intentionally omitted when the paragraph is the last token (end of content).
         if (_pendingBlockBreak)
         {
             _pendingBlockBreak = false;
-            WriteBlockBreak();
+            _stream.BlankLine();
         }
 
         switch (token.TokenType)
         {
             case MarkdownTokenType.ParagraphBlockStart:
                 _inParagraph = true;
-                _currentParagraph = new Paragraph();
-                AddContentRow(_currentParagraph);
                 break;
 
             case MarkdownTokenType.ParagraphBlockEnd:
-                if (!_inParagraph)
+                if (_inParagraph)
                 {
-                    break;
+                    _inParagraph = false;
+                    _pendingBlockBreak = true;
                 }
 
-                _inParagraph = false;
-                _currentParagraph = null;
-                _pendingBlockBreak = true;
                 break;
 
             case MarkdownTokenType.Text:
                 // Newline/whitespace text outside a paragraph is block separation, not content:
-                // it must never open a (empty) paragraph row, or a separator line appears before a
-                // following nested block (e.g. the '\n' between a list item and its nested list).
+                // it must never open an (empty) paragraph.
                 if (!_inParagraph)
                 {
                     if (string.IsNullOrWhiteSpace(token.Value))
@@ -123,28 +143,16 @@ internal sealed class MarkdownBlockContext
                     }
 
                     // A list item in a quote streams inline-only content (no ParagraphBlockStart);
-                    // open a paragraph lazily so the content has a row to render into.
-                    OpenParagraphIfClosed();
-                    if (!_inParagraph)
-                    {
-                        break;
-                    }
+                    // open a paragraph lazily so the content is tracked as paragraph content.
+                    _inParagraph = true;
                 }
 
                 if (_headingActive)
                 {
                     _headingTextLength += token.Value.Length;
-                    AppendToParagraph(token.Value, _headingStyle);
-                }
-                else if (_codeContentParagraph is not null)
-                {
-                    AppendToCodeContent(token.Value);
-                }
-                else
-                {
-                    AppendToParagraph(token.Value, _owner.MarkdownStyles.DefaultStyle);
                 }
 
+                _stream.Write(token.Value, StyleForContent());
                 break;
 
             case MarkdownTokenType.Heading:
@@ -152,8 +160,9 @@ internal sealed class MarkdownBlockContext
                 break;
 
             case MarkdownTokenType.HorizontalRule:
-                _region.AddText(new string('─', System.Console.WindowWidth), _owner.MarkdownStyles.HorizontalRule);
-                // A root horizontal rule is a complete outermost block: close the region.
+                _stream.Finish();
+                _stream.Write(new string('─', Math.Max(1, _stream.AvailableWidth)), _owner.MarkdownStyles.HorizontalRule);
+                _stream.Finish();
                 CloseRegionIfOwned();
                 break;
 
@@ -162,11 +171,14 @@ internal sealed class MarkdownBlockContext
                 break;
 
             case MarkdownTokenType.ListStart:
-                WriteListStart(token);
+                // A list is flat: ListStart is a marker only; the items (sub-documents) own their
+                // marker frames.
                 break;
 
             case MarkdownTokenType.ListEnd:
-                WriteListEnd();
+                _pendingBlockBreak = true;
+                // A flat list completes at ListEnd: close the region when the list is the outermost.
+                CloseRegionIfOwned();
                 break;
 
             case MarkdownTokenType.UnorderedListItem:
@@ -190,21 +202,30 @@ internal sealed class MarkdownBlockContext
                 break;
 
             default:
-                WriteInline(token);
+                // Inline tokens (bold, italic, link, ...) inside a paragraph/heading: the value is
+                // written directly to the stream with the token's style.
+                _stream.Write(token.Value, _owner.MarkdownStyles.GetStyleForToken(token.TokenType));
                 break;
         }
     }
 
     /// <summary>
-    /// Commits the context when its container's inline content is complete: finalizes any heading
-    /// and drops the pending block separation (omitted at end of content). Mirrors
-    /// <c>BlockquoteHtmlWriter</c>'s <c>onInlinesCompleted</c> callback.
+    /// Commits the context when its container's inline content is complete: finalizes any heading,
+    /// pops this context's left-side frame, and drops the pending block separation (omitted at end
+    /// of content). Mirrors <c>BlockquoteHtmlWriter</c>'s <c>onInlinesCompleted</c> callback.
     /// </summary>
     internal void Commit()
     {
         if (_headingActive)
         {
             FinalizeHeading();
+        }
+
+        // End the last line, then pop this context's left-side frame (if any).
+        if (_kind is BlockKind.Quote or BlockKind.Code or BlockKind.Item)
+        {
+            _stream.Finish();
+            _stream.Pop();
         }
 
         _pendingBlockBreak = false;
@@ -224,95 +245,26 @@ internal sealed class MarkdownBlockContext
         }
     }
 
-    // The whitespace principle: the writer only ever ADDS a blank-line separation. For a list
-    // item whose first content is a block construct, the first line is a fresh (indented) line.
-    private void WriteBlockBreak()
+    // The style for plain Text content: the heading style while a heading is active, the code
+    // style in a code block, otherwise the default style.
+    private Style StyleForContent()
     {
-        if (_itemPrefix is not null && !_itemFirstLineDone)
+        if (_headingActive)
         {
-            _itemFirstLineDone = true;
-            _region.AddItemRow(_itemPrefix, new Paragraph());
-            return;
+            return _headingStyle;
         }
 
-        _region.AddRow(new Paragraph());
-    }
-
-    // Adds a content row to the region. The first content line of a list item carries the
-    // item's marker prefix; continuation lines are padded to the gutter by the LiveBlock.
-    private void AddContentRow(IRenderable content)
-    {
-        if (_itemPrefix is not null && !_itemFirstLineDone)
+        if (_kind == BlockKind.Code)
         {
-            _itemFirstLineDone = true;
-            _region.AddItemRow(_itemPrefix, content);
-            return;
+            return _owner.MarkdownStyles.CodeBlock;
         }
 
-        _region.AddRow(content);
-    }
-
-    private void AppendToParagraph(string value, Style style)
-    {
-        if (_currentParagraph is null || string.IsNullOrEmpty(value))
-        {
-            return;
-        }
-
-        _currentParagraph.Append(value, style);
-    }
-
-    // A list item in a quote streams inline-only content (no ParagraphBlockStart token): the item
-    // text arrives as raw Text/inline tokens. Open a paragraph lazily so that content has a row
-    // to render into. Top-level items already receive a ParagraphBlockStart, so this is a no-op
-    // for them.
-    private void OpenParagraphIfClosed()
-    {
-        if (_itemPrefix is null || _inParagraph)
-        {
-            return;
-        }
-
-        _inParagraph = true;
-        _currentParagraph = new Paragraph();
-        AddContentRow(_currentParagraph);
-    }
-
-    private void AppendToCodeContent(string value)
-    {
-        if (_codeContentParagraph is not null && string.IsNullOrEmpty(value) is false)
-        {
-            _codeContentParagraph.Append(value, _owner.MarkdownStyles.CodeBlock);
-        }
-    }
-
-    private void WriteInline(MarkdownToken token)
-    {
-        if (_currentParagraph is null)
-        {
-            // Inline tokens only appear inside an open paragraph; ignore defensively.
-            return;
-        }
-
-        var styles = _owner.MarkdownStyles;
-        switch (token.TokenType)
-        {
-            case MarkdownTokenType.Link when token.Metadata is LinkMetadata linkMeta:
-                _currentParagraph.Append(token.Value, styles.Link, new Link(linkMeta.Url));
-                break;
-
-            case MarkdownTokenType.Image when token.Metadata is LinkMetadata imageMeta:
-                _currentParagraph.Append(token.Value, styles.Image, new Link(imageMeta.Url));
-                break;
-
-            default:
-                _currentParagraph.Append(token.Value, styles.GetStyleForToken(token.TokenType));
-                break;
-        }
+        return _owner.MarkdownStyles.DefaultStyle;
     }
 
     // A heading is a sub-document: the heading text streams through the registered handler. The
-    // heading renders as a row in the current region; its underline is appended on commit.
+    // heading renders directly in the stream; its underline (and level-1 bold decoration) is
+    // written on commit, when the full text length is known.
     private void WriteHeading(MarkdownToken token)
     {
         if (token.Metadata is not HeadingMetadata meta)
@@ -328,16 +280,8 @@ internal sealed class MarkdownBlockContext
             _ => styles.Level5AndAbove
         };
 
-        var headingParagraph = new Paragraph();
-        if (meta.Level == 1)
-        {
-            headingParagraph.Append("** ", headingStyle);
-        }
-
-        AddContentRow(headingParagraph);
-
-        var context = new MarkdownBlockContext(_owner, _region, TakeRegionClose());
-        context.InitializeHeading(meta.Level, headingStyle, headingParagraph);
+        var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose());
+        context.InitializeHeading(meta.Level, headingStyle);
 
         meta.RegisterInlineTokenHandler(
             sub => context.WriteToken(sub),
@@ -345,45 +289,49 @@ internal sealed class MarkdownBlockContext
     }
 
     // Internal initializer so the heading state (private fields) can be set by the owning context
-    // that just created the heading's child context.
-    internal void InitializeHeading(int level, Style style, Paragraph paragraph)
+    // that just created the heading's child context. The level-1 bold prefix is written now,
+    // before the heading text streams.
+    internal void InitializeHeading(int level, Style style)
     {
         _headingActive = true;
         _headingLevel = level;
         _headingStyle = style;
-        _headingParagraph = paragraph;
-        _currentParagraph = paragraph;
         _inParagraph = true;
+
+        if (level == 1)
+        {
+            _stream.Write("** ", style);
+        }
     }
 
     private void FinalizeHeading()
     {
         _headingActive = false;
-        if (_headingParagraph is null)
-        {
-            return;
-        }
 
         if (_headingLevel == 1)
         {
-            _headingParagraph.Append(" **", _headingStyle);
+            _stream.Write(" **", _headingStyle);
         }
+
+        _stream.Finish();
 
         // Level 1 is underlined with '=' (spans the text plus the "** " decoration); level 2-4
         // with '-'; level 5+ have no underline (mirrors MarkdownHeadingWriter).
         if (_headingLevel == 1)
         {
-            _region.AddText(new string('=', _headingTextLength + 6), _headingStyle);
+            _stream.Write(new string('=', _headingTextLength + 6), _headingStyle);
         }
         else if (_headingLevel is >= 2 and <= 4)
         {
-            _region.AddText(new string('-', _headingTextLength), _headingStyle);
+            _stream.Write(new string('-', _headingTextLength), _headingStyle);
         }
 
+        _stream.Finish();
     }
 
     // A blockquote is a sub-document: the quoted content is a full markdown sub-stream. The
-    // quote renders as a nested Quote LiveBlock row in the current region.
+    // child context (kind Quote) pushes a border frame, so every line of its content (and its
+    // nested blocks) is bordered.
     private void WriteBlockquote(MarkdownToken token)
     {
         if (token.Metadata is not BlockquoteMetadata meta)
@@ -391,74 +339,49 @@ internal sealed class MarkdownBlockContext
             return;
         }
 
-        var quote = LiveBlock.CreateQuote(_owner.MarkdownStyles.QuoteBorder);
-        AddContentRow(quote);
-        var context = new MarkdownBlockContext(_owner, quote, TakeRegionClose());
+        var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose(), kind: BlockKind.Quote);
         _pendingBlockBreak = true;
 
-        // Start administration above; content streams through the handler; commit = end
-        // administration.
         meta.RegisterInlineTokenHandler(
             sub => context.WriteToken(sub),
             () => context.Commit());
     }
 
-    // A list is flat (not a sub-document): ListStart opens the list LiveBlock, items stream in
-    // as sub-document tokens, and ListEnd closes the list.
-    private void WriteListStart(MarkdownToken token)
-    {
-        if (token.Metadata is not ListMetadata meta)
-        {
-            return;
-        }
-
-        var styles = _owner.MarkdownStyles;
-        var markerStyle = meta.IsOrdered ? styles.OrderedListItem : styles.UnorderedListItem;
-        var list = LiveBlock.CreateList(markerStyle, styles.ListGutter);
-        _activeList = list;
-        AddContentRow(list);
-    }
-
-    private void WriteListEnd()
-    {
-        _activeList = null;
-        _pendingBlockBreak = true;
-        // A flat list completes at ListEnd: close the region when the list is the outermost block.
-        CloseRegionIfOwned();
-    }
-
     // A list item is a sub-document: the item's content streams through the registered handler.
-    // The item renders into the list region; the first content line carries the item's marker
-    // prefix, continuation lines are padded to the gutter. Items are never the outermost block,
-    // so they never receive the region-close.
+    // The child context (kind Item) owns the marker frame (pushed in its constructor, popped on
+    // commit), so every line of the item's content (and its nested blocks) is indented to the
+    // marker.
     private void WriteListItem(MarkdownToken token, bool ordered)
     {
-        string? prefix = null;
+        string? marker = null;
+        Style? markerStyle = null;
         if (ordered && token.Metadata is OrderedListItemMetadata orderedMeta)
         {
-            prefix = $" {orderedMeta.Number.ToString().PadLeft(2)}{orderedMeta.Marker} ";
+            marker = $" {orderedMeta.Number.ToString().PadLeft(2)}{orderedMeta.Marker} ";
+            markerStyle = _owner.MarkdownStyles.OrderedListItem;
         }
         else if (!ordered && token.Metadata is ListItemMetadata unorderedMeta)
         {
-            prefix = $" {unorderedMeta.Marker} ";
+            marker = $" {unorderedMeta.Marker} ";
+            markerStyle = _owner.MarkdownStyles.UnorderedListItem;
         }
 
-        if (prefix is null)
+        if (marker is null)
         {
             return;
         }
 
-        var list = _activeList ?? _region;
-        var context = new MarkdownBlockContext(_owner, list, itemPrefix: prefix);
+        var context = new MarkdownBlockContext(
+            _owner, _stream, kind: BlockKind.Item, itemMarker: marker, itemMarkerStyle: markerStyle);
+
         (token.Metadata as InlineMetadata<MarkdownToken>)!.RegisterInlineTokenHandler(
             sub => context.WriteToken(sub),
             () => context.Commit());
     }
 
-    // A fenced code block is a sub-document: the code streams through the registered handler.
-    // The language label is part of the block model (not a direct console write), so it lands in
-    // the correct (nested) context. The code renders as a nested Code LiveBlock row with the
-    // label above it.
+    // A fenced code block is a sub-document: the code streams through the registered handler. The
+    // language label is written (outside the border) before the child context (kind Code) pushes
+    // the code border frame, so the code content is bordered.
     private void WriteFencedCodeBlock(MarkdownToken token)
     {
         if (token.Metadata is not ICodeBlockMetadata meta)
@@ -468,21 +391,11 @@ internal sealed class MarkdownBlockContext
 
         var language = string.IsNullOrWhiteSpace(meta.Language) ? "code" : meta.Language;
 
-        var container = LiveBlock.CreateBare();
-        AddContentRow(container);
-        container.AddText($"{language}:", _owner.MarkdownStyles.CodeLabel);
+        _stream.Write($"{language}:", _owner.MarkdownStyles.CodeLabel);
+        _stream.Finish();
 
-        var code = LiveBlock.CreateCode(_owner.MarkdownStyles.CodeBorder);
-        container.AddRow(code);
-        var paragraph = new Paragraph();
-        code.AddRow(paragraph);
-
-        var context = new MarkdownBlockContext(_owner, code, TakeRegionClose());
-        _pendingBlockBreak = true;
-
-        // Start administration above; content streams through the handler; commit = end
-        // administration.
-        _owner.WireFencedCode(meta, paragraph, context);
+        var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose(), kind: BlockKind.Code);
+        _owner.WireFencedCode(meta, _stream, context);
     }
 
     // An indented code block is a sub-document: its (plain text) content streams through the
@@ -494,27 +407,19 @@ internal sealed class MarkdownBlockContext
             return;
         }
 
-        var container = LiveBlock.CreateBare();
-        AddContentRow(container);
-        container.AddText("code:", _owner.MarkdownStyles.CodeLabel);
+        _stream.Write("code:", _owner.MarkdownStyles.CodeLabel);
+        _stream.Finish();
 
-        var code = LiveBlock.CreateCode(_owner.MarkdownStyles.CodeBorder);
-        container.AddRow(code);
-        var paragraph = new Paragraph();
-        code.AddRow(paragraph);
-
-        var context = new MarkdownBlockContext(_owner, code, TakeRegionClose());
-        context.SetCodeContentParagraph(paragraph);
-        _pendingBlockBreak = true;
+        var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose(), kind: BlockKind.Code);
 
         meta.RegisterInlineTokenHandler(
             sub => context.WriteToken(sub),
             () => context.Commit());
     }
 
-    // A table (even nested) renders in its own live region that grows as the tokenizer streams
-    // the table content. The callback is awaited by the parser before the content streams, so it
-    // must return immediately; the live region is kicked off as a fire-and-forget task and closes
+    // A table renders in its own live region that grows as the tokenizer streams the table
+    // content. The callback is awaited by the parser before the content streams, so it must
+    // return immediately; the live region is kicked off as a fire-and-forget task and closes
     // itself when the content completes.
     private void WriteTable(MarkdownToken token)
     {
@@ -528,12 +433,9 @@ internal sealed class MarkdownBlockContext
         _ = Task.Run(() => writer.WriteAsync(meta));
     }
 
-    /// <summary>Sets the paragraph that receives indented-code content (plain text tokens).</summary>
-    internal void SetCodeContentParagraph(Paragraph paragraph) => _codeContentParagraph = paragraph;
-
     // The region owner hands the region-close to the first sub-document block it dispatches (the
-    // region's outermost block) and keeps none for itself. Nested contexts have no signal to hand,
-    // so a nested block can never close the region.
+    // outermost block) and keeps none for itself. Nested contexts have no signal to hand, so a
+    // nested block can never close the region.
     private Action? TakeRegionClose()
     {
         if (!_ownsRegion)

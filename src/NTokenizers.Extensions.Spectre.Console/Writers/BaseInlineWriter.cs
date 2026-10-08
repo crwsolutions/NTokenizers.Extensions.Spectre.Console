@@ -1,6 +1,5 @@
 using NTokenizers.Core;
 using Spectre.Console;
-using Spectre.Console.Rendering;
 using System.Diagnostics;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
@@ -33,14 +32,15 @@ internal abstract class BaseInlineWriter<TToken, TTokentype> where TToken : ITok
     }
 
     /// <summary>
-    /// Appends a token to a <see cref="Paragraph"/> with the token's style. Used to stream code
-    /// block content into a live block (a <c>LiveBlock</c> row) without an owned live display.
+    /// Writes a token to the streaming output with the token's style. Used by fenced/indented
+    /// code blocks (which stream to the shared console rather than into a live region). The stream
+    /// escapes the value, so the raw token value is passed.
     /// </summary>
-    /// <param name="paragraph">The paragraph to append the token to.</param>
-    /// <param name="token">The token to append.</param>
-    internal virtual void AppendToken(Paragraph paragraph, TToken token)
+    /// <param name="stream">The streaming output to write the token to.</param>
+    /// <param name="token">The token to write.</param>
+    internal virtual void WriteToStream(MarkdownStream stream, TToken token)
     {
-        WriteToken(paragraph, token);
+        stream.Write(token.Value, GetStyle(token.TokenType));
     }
 
     internal void WriteTokenInLiveTarget(TToken token)
@@ -48,33 +48,6 @@ internal abstract class BaseInlineWriter<TToken, TTokentype> where TToken : ITok
         WriteToken(_liveParagraph, token);
         _liveDisplayContext?.Refresh();
     }
-
-    internal async Task WriteAsync(InlineMetadata<TToken> metadata)
-    {
-        var liveDisplay = new LiveDisplay(_ansiConsole, GetIRendable());
-        await liveDisplay
-        .StartAsync(async ctx =>
-        {
-            await StartedAsync(metadata);
-            await metadata.RegisterInlineTokenHandler(async inlineToken =>
-            {
-                await WriteTokenAsync(_liveParagraph, inlineToken, ctx);
-                ctx.Refresh();
-            });
-
-            await FinalizeAsync(metadata);
-            ctx.Refresh();
-        });
-    }
-
-    protected virtual IRenderable GetIRendable() => 
-        new Panel(_liveParagraph)
-            .Border(new LeftBoxBorder())
-            .BorderStyle(new Style(Color.Green));
-
-    protected virtual Task StartedAsync(InlineMetadata<TToken> metadata) => Task.CompletedTask;
-
-    protected virtual Task FinalizeAsync(InlineMetadata<TToken> metadata) => Task.CompletedTask;
 
     protected virtual Task WriteTokenAsync(Paragraph? liveParagraph, TToken token, LiveDisplayContext? ctx)
     {
