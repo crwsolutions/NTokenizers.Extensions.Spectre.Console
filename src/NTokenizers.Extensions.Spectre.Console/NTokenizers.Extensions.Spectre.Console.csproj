@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
@@ -50,8 +50,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NTokenizers" Version="7.0.1" />
-		<PackageReference Include="Spectre.Console" Version="0.55.2" />
+		<PackageReference Include="NTokenizers" Version="7.*" />
+		<PackageReference Include="Spectre.Console" Version="0.57.2" />
 	</ItemGroup>
 
 	<ItemGroup>
