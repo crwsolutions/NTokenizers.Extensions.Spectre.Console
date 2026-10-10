@@ -1,12 +1,18 @@
-﻿using NTokenizers.Markdown;
+using NTokenizers.Markdown;
 using NTokenizers.Markdown.Metadata;
 using NTokenizers.Extensions.Spectre.Console.Extensions;
 using NTokenizers.Extensions.Spectre.Console.Styles;
-using System.Diagnostics;
 using Spectre.Console;
 
 namespace NTokenizers.Extensions.Spectre.Console.Writers;
 
+/// <summary>
+/// Renders a markdown table in a live region that grows as the tokenizer streams the table's
+/// content: every token is applied to the table and the region is refreshed, so the table
+/// restructures in place as new rows and cells arrive. The caller must not wait for
+/// <see cref="WriteAsync"/> to complete from the token callback (the tokenizer only streams the
+/// table content after the callback returns); the region closes itself when the content completes.
+/// </summary>
 internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles markdownStyles)
 {
     internal async Task WriteAsync(TableMetadata metadata)
@@ -14,13 +20,13 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
         var spectreTable = new Table();
 
         var column = -1;
-        TableRow? currentRow = null;
         var cellParagraphs = new List<Paragraph>();
-        var liveParagraph = new Paragraph();
+        Paragraph liveParagraph = new();
+
         await ansiConsole.Live(spectreTable)
         .StartAsync(async ctx =>
         {
-            await metadata.RegisterInlineTokenHandler(async inlineToken =>
+            await metadata.RegisterInlineTokenHandler(inlineToken =>
             {
                 if (inlineToken.TokenType == MarkdownTokenType.TableAlignments)
                 {
@@ -28,14 +34,13 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
                 }
                 else if (inlineToken.TokenType == MarkdownTokenType.TableRow)
                 {
-                    //Handle new row
+                    // Handle new row
                     column = -1;
 
                     if (spectreTable.Columns.Count > 0)
-                    { 
+                    {
                         cellParagraphs = Enumerable.Range(0, spectreTable.Columns.Count).Select(_ => new Paragraph()).ToList();
-                        currentRow = new TableRow(cellParagraphs);
-                        spectreTable.AddRow(currentRow);
+                        spectreTable.AddRow(new TableRow(cellParagraphs));
                     }
                 }
                 else if (inlineToken.TokenType == MarkdownTokenType.TableCell)
@@ -54,9 +59,9 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
                         }
                     }
                 }
-                else //Write cell content
+                else // Write cell content
                 {
-                    await WriteTokenAsync(liveParagraph, inlineToken);
+                    WriteCell(liveParagraph, inlineToken);
                 }
 
                 ctx.Refresh();
@@ -66,7 +71,26 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
         });
     }
 
-    private void HandleAlignments(Table spectreTable, TableMetadata metadata)
+    private void WriteCell(Paragraph liveParagraph, MarkdownToken token)
+    {
+        if (string.IsNullOrEmpty(token.Value))
+        {
+            return;
+        }
+
+        var style = token.TokenType switch
+        {
+            MarkdownTokenType.Bold => markdownStyles.Bold,
+            MarkdownTokenType.Italic => markdownStyles.Italic,
+            MarkdownTokenType.CodeInline => markdownStyles.CodeInline,
+            MarkdownTokenType.Link => markdownStyles.Link,
+            _ => markdownStyles.TableCell
+        };
+
+        liveParagraph.Append(Markup.Escape(token.Value), style);
+    }
+
+    private static void HandleAlignments(Table spectreTable, TableMetadata metadata)
     {
         if (metadata.Alignments == null || metadata.Alignments.Count == 0)
         {
@@ -88,18 +112,18 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
         }
         else
         {
-            // Case B: Columns already exist → update only
-            for (int i = 0; i < spectreTable.Columns.Count; i++)
+            // Case B: Columns already exist -> update only
+            for (var i = 0; i < spectreTable.Columns.Count; i++)
             {
                 if (i < aligns.Count)
                 {
-                    // Alignment provided → apply it
+                    // Alignment provided -> apply it
                     spectreTable.Columns[i].Alignment = aligns[i].ToSpectreJustify();
                 }
             }
 
-            // Case C: More alignments than columns → append new columns
-            for (int i = spectreTable.Columns.Count; i < aligns.Count; i++)
+            // Case C: More alignments than columns -> append new columns
+            for (var i = spectreTable.Columns.Count; i < aligns.Count; i++)
             {
                 var col = new TableColumn("")
                 {
@@ -108,15 +132,5 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
                 spectreTable.AddColumn(col);
             }
         }
-    }
-
-    private async Task WriteTokenAsync(Paragraph liveParagraph, MarkdownToken token)
-    {
-        if (string.IsNullOrEmpty(token.Value))
-        {
-            return;
-        }
-        Debug.WriteLine($"Writing token: `{token.Value}` of type `{token.TokenType}`");
-        await MarkdownWriter.Create(ansiConsole).WriteAsync(liveParagraph, token, markdownStyles.TableCell);
     }
 }

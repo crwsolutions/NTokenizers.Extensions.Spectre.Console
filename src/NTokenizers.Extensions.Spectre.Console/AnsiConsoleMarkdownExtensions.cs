@@ -1,4 +1,4 @@
-﻿using NTokenizers.Markdown;
+using NTokenizers.Markdown;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 using NTokenizers.Extensions.Spectre.Console.Writers;
 using System.Text;
