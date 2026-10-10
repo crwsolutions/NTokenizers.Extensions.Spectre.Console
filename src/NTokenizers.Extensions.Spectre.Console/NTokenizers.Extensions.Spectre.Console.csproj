@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
@@ -9,7 +9,7 @@
 		<!-- NuGet package metadata -->
 		<PackageId>NTokenizers.Extensions.Spectre.Console</PackageId>
 		<VersionSuffix Condition="'$(VersionSuffix)' == ''">preview</VersionSuffix>
-		<Version>2.4</Version>
+		<Version>3.0</Version>
 		<Authors>crwsolutions</Authors>
 		<Copyright>(c) crwsolutions</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,12 +21,36 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageProjectUrl>https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console</PackageProjectUrl>
 		<Title>NTokenizers.Extensions.Spectre.Console</Title>
-		<PackageReleaseNotes>Added C, C++, Go, Java, Kotlin, Python, Rust and Swift writer. And support for xaml and svg</PackageReleaseNotes>
+		<PackageReleaseNotes>This release upgrades to NTokenizers 7.0.1 and reworks the Markdown renderer from a buffer-then-display model into a fully forward-only, per-token streaming pipeline, with a number of parsing and rendering fixes.
+
+## Markdown streaming (rewrite)
+
+- Markdown is now rendered forward-only: each token is written to the console as it arrives, the left side (borders, gutters, markers) is composed from the active nesting frame stack, and lines wrap only when a token no longer fits. The previous buffer-then-render LiveBlock model is gone.
+- Nested Markdown (blockquote, heading, list items) is streamed token by token; list-item content can contain nested blocks such as quotes and lists.
+- Root paragraphs are written directly and verbatim, so soft breaks inside a paragraph are preserved.
+- Nested HTML style/script content is tokenized and streamed inline without the previous per-element handler delay.
+- Nested list indentation and frame ordering are corrected.
+- A pending block separator no longer renders as a blank line before a list's nested list.
+- Console width is cached with a redirected-output fallback (80), removing the WindowWidth IOException when stdout is redirected.
+- The unused generic Heading style property was removed; headings render through MarkdownHeadingStyles.
+
+## Tables
+
+- Tables render in a Spectre live region that grows and refreshes as rows arrive, restoring the previous growing-table behavior on the new streaming path.
+
+## Writers
+
+- The Emoji writer now supports the `:rocket:` short-code syntax.
+- The Link writer rendering was improved.
+
+## Dependencies
+
+- Upgraded to NTokenizers 7.0.</PackageReleaseNotes>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NTokenizers" Version="7.0.0-local.6" />
+		<PackageReference Include="NTokenizers" Version="7.0.1" />
 		<PackageReference Include="Spectre.Console" Version="0.55.2" />
 	</ItemGroup>
 
