@@ -90,7 +90,7 @@ AnsiConsole.WriteLine();
 
 var app = builder.Build();
 
-AnsiConsole.MarkupLine($"[dodgerblue2]Using model : [silver]'{modelId}'[/] [/]");
+AnsiConsole.MarkupLine($"[dodgerblue2]Using model : [silver]'{Markup.Escape(modelId)}'[/] [/]");
 
 var chatService = app.Services.GetRequiredService<ChatService>();
 await chatService.StartAsync();
