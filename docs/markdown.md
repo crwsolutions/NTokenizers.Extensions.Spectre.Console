@@ -137,7 +137,9 @@ using NTokenizers.Extensions.Spectre.Console;
 using NTokenizers.Extensions.Spectre.Console.Styles;
 
 var customMarkdownStyles = MarkdownStyles.Default;
-customMarkdownStyles.Heading = new Style(Color.Orange1);
+customMarkdownStyles.MarkdownHeadingStyles.Level1 = Color.Orange1;
+customMarkdownStyles.MarkdownHeadingStyles.Level2To4 = Color.Orange3;
+customMarkdownStyles.MarkdownHeadingStyles.Level5AndAbove = Color.Orange4;
 
 AnsiConsole.Console.WriteMarkdown(markdown, customMarkdownStyles);
 ```
