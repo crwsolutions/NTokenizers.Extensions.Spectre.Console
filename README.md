@@ -11,10 +11,6 @@ Together, they enable expressive syntax highlighting directly in the console.
 await AnsiConsole.Console.WriteMarkdownAsync(stream);
 ```
 
-> [!WARNING] 
->
-> All references to Markup were renamed to Markdown. And so WriteMarkupText was renamed to **WriteMarkdown** in **v2**.
-
 > **Especially suitable for parsing AI chat streams**, NTokenizers excels at processing real-time tokenized data from AI models, enabling efficient handling of streaming responses and chat conversations without buffering entire responses.
 > 
 > Check out the [AI Example](https://crwsolutions.github.io/NTokenizers.Extensions.Spectre.Console/ai) to learn more about that.
