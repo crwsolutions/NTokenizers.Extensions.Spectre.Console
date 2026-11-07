@@ -24,6 +24,7 @@ internal static class MarkdownExample
         __This is bold text__
         *This is italic text*
         _This is italic text_
+        ***This is bold italic text***
         ~~Strikethrough~~
 
         ## Blockquotes
