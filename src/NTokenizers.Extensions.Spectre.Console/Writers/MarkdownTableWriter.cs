@@ -81,7 +81,9 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
         var style = token.TokenType switch
         {
             MarkdownTokenType.Bold => markdownStyles.Bold,
+            MarkdownTokenType.BoldItalic => markdownStyles.BoldItalic,
             MarkdownTokenType.Italic => markdownStyles.Italic,
+            MarkdownTokenType.Strikethrough => markdownStyles.Strikethrough,
             MarkdownTokenType.CodeInline => markdownStyles.CodeInline,
             MarkdownTokenType.Link => markdownStyles.Link,
             _ => markdownStyles.TableCell

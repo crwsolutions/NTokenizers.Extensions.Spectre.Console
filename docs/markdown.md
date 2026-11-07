@@ -111,6 +111,7 @@ var markdown = """
     ## Emphasis
     **This is bold text**
     *This is italic text*
+    ***This is bold italic text***
     ~~Strikethrough~~
 
     ## Lists

@@ -26,6 +26,16 @@ public class MarkdownStyles
     public Style Italic { get; set; } = new Style(Color.Green, decoration: Decoration.Italic);
 
     /// <summary>
+    /// Gets or sets the style for bold italic text in markdown content.
+    /// </summary>
+    public Style BoldItalic { get; set; } = new Style(Color.Blue, decoration: Decoration.Bold | Decoration.Italic);
+
+    /// <summary>
+    /// Gets or sets the style for strikethrough text in markdown content.
+    /// </summary>
+    public Style Strikethrough { get; set; } = new Style(Color.Grey, decoration: Decoration.Strikethrough);
+
+    /// <summary>
     /// Gets or sets the style for horizontal rules in markdown content.
     /// </summary>
     public Style HorizontalRule { get; set; } = new Style(Color.Grey);
@@ -154,7 +164,9 @@ public class MarkdownStyles
     public Style GetStyleForToken(MarkdownTokenType tokenType) => tokenType switch
     {
         MarkdownTokenType.Bold => Bold,
+        MarkdownTokenType.BoldItalic => BoldItalic,
         MarkdownTokenType.Italic => Italic,
+        MarkdownTokenType.Strikethrough => Strikethrough,
         MarkdownTokenType.HorizontalRule => HorizontalRule,
         MarkdownTokenType.CodeInline => CodeInline,
         MarkdownTokenType.CodeBlock => CodeBlock,
