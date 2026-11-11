@@ -50,8 +50,7 @@ public static class AnsiConsoleJavaExtensions
     public static string WriteJava(this IAnsiConsole ansiConsole, Stream stream,
         JavaStyles? javaStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteJavaAsync(ansiConsole, stream, javaStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteJavaAsync(ansiConsole, stream, javaStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleJavaExtensions
     public static void WriteJava(this IAnsiConsole ansiConsole, string value, JavaStyles javaStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteJavaAsync(ansiConsole, stream, javaStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteJavaAsync(ansiConsole, stream, javaStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

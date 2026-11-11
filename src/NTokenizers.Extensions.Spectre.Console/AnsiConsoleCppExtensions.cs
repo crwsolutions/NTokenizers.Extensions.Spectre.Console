@@ -50,8 +50,7 @@ public static class AnsiConsoleCppExtensions
     public static string WriteCpp(this IAnsiConsole ansiConsole, Stream stream,
         CppStyles? cppStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteCppAsync(ansiConsole, stream, cppStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteCppAsync(ansiConsole, stream, cppStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleCppExtensions
     public static void WriteCpp(this IAnsiConsole ansiConsole, string value, CppStyles cppStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteCppAsync(ansiConsole, stream, cppStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteCppAsync(ansiConsole, stream, cppStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

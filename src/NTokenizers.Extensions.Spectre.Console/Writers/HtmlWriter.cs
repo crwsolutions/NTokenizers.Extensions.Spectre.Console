@@ -24,11 +24,11 @@ internal class HtmlWriter : BaseInlineWriter<HtmlToken, HtmlTokenType>
             var writer = new TypescriptWriter(_ansiConsole, _styles.TypescriptStyles, _liveParagraph, ctx);
             if (liveTarget is null)
             {
-                await tsMeta.RegisterInlineTokenHandler(writer.WriteToken);
+                await tsMeta.ParseInlinesAsync(writer.WriteToken);
             }
             else
             {
-                await tsMeta.RegisterInlineTokenHandler(writer.WriteTokenInLiveTarget);
+                await tsMeta.ParseInlinesAsync(writer.WriteTokenInLiveTarget);
             }
         }
         else if (token.Metadata is CssCodeBlockMetadata cssMeta)
@@ -36,11 +36,11 @@ internal class HtmlWriter : BaseInlineWriter<HtmlToken, HtmlTokenType>
             var writer = new CssWriter(_ansiConsole, _styles.CssStyles, _liveParagraph, ctx);
             if (liveTarget is null)
             {
-                await cssMeta.RegisterInlineTokenHandler(writer.WriteToken);
+                await cssMeta.ParseInlinesAsync(writer.WriteToken);
             }
             else
             {
-                await cssMeta.RegisterInlineTokenHandler(writer.WriteTokenInLiveTarget);
+                await cssMeta.ParseInlinesAsync(writer.WriteTokenInLiveTarget);
             }
         }
         else
@@ -51,11 +51,8 @@ internal class HtmlWriter : BaseInlineWriter<HtmlToken, HtmlTokenType>
 
     /// <summary>
     /// Writes an HTML token to the stream. The HTML tokenizer emits a nested
-    /// <c>CssCodeBlockMetadata</c> (style) or <c>TypeScriptCodeBlockMetadata</c> (script) token and,
-    /// before streaming that element's content, waits up to its timeout for the nested handler to
-    /// be registered. The registration is synchronous (it signals the metadata's handler task
-    /// immediately); the returned processing task is deliberately not awaited, so the callback
-    /// returns quickly and the tokenizer continues without a deadlock or the handler-wait timeout.
+    /// <c>CssCodeBlockMetadata</c> (style) or <c>TypeScriptCodeBlockMetadata</c> (script) token.
+    /// The sub-tokenizer runs inline within the container handler via ParseInlinesAsync.
     /// </summary>
     /// <param name="stream">The stream to write the token (or nested style/script tokens) to.</param>
     /// <param name="token">The token to write; if it carries nested style/script metadata, the
@@ -65,14 +62,16 @@ internal class HtmlWriter : BaseInlineWriter<HtmlToken, HtmlTokenType>
         if (token.Metadata is TypeScriptCodeBlockMetadata tsMeta)
         {
             var writer = new TypescriptWriter(_ansiConsole, _styles.TypescriptStyles);
-            _ = tsMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t));
+            var t = tsMeta.ParseInlinesAsync(t => { writer.WriteToStream(stream, t); return Task.CompletedTask; });
+            t.GetAwaiter().GetResult();
             return;
         }
 
         if (token.Metadata is CssCodeBlockMetadata cssMeta)
         {
             var writer = new CssWriter(_ansiConsole, _styles.CssStyles);
-            _ = cssMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t));
+            var t = cssMeta.ParseInlinesAsync(t => { writer.WriteToStream(stream, t); return Task.CompletedTask; });
+            t.GetAwaiter().GetResult();
             return;
         }
 

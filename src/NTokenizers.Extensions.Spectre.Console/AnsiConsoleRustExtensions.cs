@@ -50,8 +50,7 @@ public static class AnsiConsoleRustExtensions
     public static string WriteRust(this IAnsiConsole ansiConsole, Stream stream,
         RustStyles? rustStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteRustAsync(ansiConsole, stream, rustStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteRustAsync(ansiConsole, stream, rustStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleRustExtensions
     public static void WriteRust(this IAnsiConsole ansiConsole, string value, RustStyles rustStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteRustAsync(ansiConsole, stream, rustStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteRustAsync(ansiConsole, stream, rustStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

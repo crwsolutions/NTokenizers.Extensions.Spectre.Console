@@ -56,8 +56,7 @@ public static class AnsiConsoleMarkdownExtensions
     /// <returns>The parsed string from the input stream.</returns>
     public static string WriteMarkdown(this IAnsiConsole ansiConsole, Stream stream, MarkdownStyles? markdownStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteMarkdownAsync(ansiConsole, stream, markdownStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteMarkdownAsync(ansiConsole, stream, markdownStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -77,7 +76,6 @@ public static class AnsiConsoleMarkdownExtensions
     public static void WriteMarkdown(this IAnsiConsole ansiConsole, string value, MarkdownStyles markdownStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteMarkdownAsync(ansiConsole, stream, markdownStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteMarkdownAsync(ansiConsole, stream, markdownStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

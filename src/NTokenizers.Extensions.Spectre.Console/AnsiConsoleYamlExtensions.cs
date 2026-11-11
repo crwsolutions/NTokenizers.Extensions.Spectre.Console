@@ -57,8 +57,7 @@ public static class AnsiConsoleYamlExtensions
     /// <returns>The YAML content as a string.</returns>
     public static string WriteYaml(this IAnsiConsole ansiConsole, Stream stream, YamlStyles? yamlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteYamlAsync(ansiConsole, stream, yamlStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteYamlAsync(ansiConsole, stream, yamlStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -78,7 +77,6 @@ public static class AnsiConsoleYamlExtensions
     public static void WriteYaml(this IAnsiConsole ansiConsole, string value, YamlStyles yamlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteYamlAsync(ansiConsole, stream, yamlStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteYamlAsync(ansiConsole, stream, yamlStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

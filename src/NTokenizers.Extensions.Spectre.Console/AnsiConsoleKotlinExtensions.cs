@@ -50,8 +50,7 @@ public static class AnsiConsoleKotlinExtensions
     public static string WriteKotlin(this IAnsiConsole ansiConsole, Stream stream,
         KotlinStyles? kotlinStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteKotlinAsync(ansiConsole, stream, kotlinStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteKotlinAsync(ansiConsole, stream, kotlinStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleKotlinExtensions
     public static void WriteKotlin(this IAnsiConsole ansiConsole, string value, KotlinStyles kotlinStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteKotlinAsync(ansiConsole, stream, kotlinStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteKotlinAsync(ansiConsole, stream, kotlinStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }
