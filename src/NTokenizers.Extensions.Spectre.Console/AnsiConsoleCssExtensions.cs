@@ -57,8 +57,7 @@ public static class AnsiConsoleCssExtensions
     /// <returns>The CSS content as a string.</returns>
     public static string WriteCss(this IAnsiConsole ansiConsole, Stream stream, CssStyles? cssStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteCssAsync(ansiConsole, stream, cssStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteCssAsync(ansiConsole, stream, cssStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -78,7 +77,6 @@ public static class AnsiConsoleCssExtensions
     public static void WriteCss(this IAnsiConsole ansiConsole, string value, CssStyles cssStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteCssAsync(ansiConsole, stream, cssStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteCssAsync(ansiConsole, stream, cssStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

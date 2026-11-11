@@ -26,9 +26,10 @@ internal abstract class BaseInlineWriter<TToken, TTokentype> where TToken : ITok
 
     protected virtual Style GetStyle(TTokentype token) => Style.Plain;
 
-    internal void WriteToken(TToken token)
+    internal Task WriteToken(TToken token)
     {
         _ansiConsole.Write(new Markup(Markup.Escape(token.Value), GetStyle(token.TokenType)));
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -43,16 +44,16 @@ internal abstract class BaseInlineWriter<TToken, TTokentype> where TToken : ITok
         stream.Write(token.Value, GetStyle(token.TokenType));
     }
 
-    internal void WriteTokenInLiveTarget(TToken token)
+    internal Task WriteTokenInLiveTarget(TToken token)
     {
         WriteToken(_liveParagraph, token);
         _liveDisplayContext?.Refresh();
+        return Task.CompletedTask;
     }
 
-    protected virtual Task WriteTokenAsync(Paragraph? liveParagraph, TToken token, LiveDisplayContext? ctx)
+    protected virtual async Task WriteTokenAsync(Paragraph? liveParagraph, TToken token, LiveDisplayContext? ctx)
     {
         WriteToken(liveParagraph, token);
-        return Task.CompletedTask;
     }
 
     protected virtual void WriteToken(Paragraph? liveParagraph, TToken token)

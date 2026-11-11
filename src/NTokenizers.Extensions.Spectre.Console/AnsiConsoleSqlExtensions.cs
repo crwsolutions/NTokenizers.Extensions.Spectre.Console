@@ -55,8 +55,7 @@ public static class AnsiConsoleSqlExtensions
     /// <returns>The processed SQL content as a string.</returns>
     public static string WriteSql(this IAnsiConsole ansiConsole, Stream stream, SqlStyles? sqlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteSqlAsync(ansiConsole, stream, sqlStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -76,7 +75,6 @@ public static class AnsiConsoleSqlExtensions
     public static void WriteSql(this IAnsiConsole ansiConsole, string value, SqlStyles sqlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteSqlAsync(ansiConsole, stream, sqlStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteSqlAsync(ansiConsole, stream, sqlStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

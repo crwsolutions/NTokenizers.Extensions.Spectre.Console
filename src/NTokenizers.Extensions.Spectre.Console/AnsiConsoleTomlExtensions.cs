@@ -57,8 +57,7 @@ public static class AnsiConsoleTomlExtensions
     /// <returns>The TOML content as a string.</returns>
     public static string WriteToml(this IAnsiConsole ansiConsole, Stream stream, TomlStyles? tomlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteTomlAsync(ansiConsole, stream, tomlStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteTomlAsync(ansiConsole, stream, tomlStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -78,7 +77,6 @@ public static class AnsiConsoleTomlExtensions
     public static void WriteToml(this IAnsiConsole ansiConsole, string value, TomlStyles tomlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteTomlAsync(ansiConsole, stream, tomlStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteTomlAsync(ansiConsole, stream, tomlStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

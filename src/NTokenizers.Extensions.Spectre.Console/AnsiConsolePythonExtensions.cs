@@ -50,8 +50,7 @@ public static class AnsiConsolePythonExtensions
     public static string WritePython(this IAnsiConsole ansiConsole, Stream stream,
         PythonStyles? pythonStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WritePythonAsync(ansiConsole, stream, pythonStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WritePythonAsync(ansiConsole, stream, pythonStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsolePythonExtensions
     public static void WritePython(this IAnsiConsole ansiConsole, string value, PythonStyles pythonStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WritePythonAsync(ansiConsole, stream, pythonStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WritePythonAsync(ansiConsole, stream, pythonStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

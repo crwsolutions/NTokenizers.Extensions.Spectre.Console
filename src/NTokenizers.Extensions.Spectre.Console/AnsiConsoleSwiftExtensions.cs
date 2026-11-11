@@ -50,8 +50,7 @@ public static class AnsiConsoleSwiftExtensions
     public static string WriteSwift(this IAnsiConsole ansiConsole, Stream stream,
         SwiftStyles? swiftStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteSwiftAsync(ansiConsole, stream, swiftStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteSwiftAsync(ansiConsole, stream, swiftStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleSwiftExtensions
     public static void WriteSwift(this IAnsiConsole ansiConsole, string value, SwiftStyles swiftStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteSwiftAsync(ansiConsole, stream, swiftStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteSwiftAsync(ansiConsole, stream, swiftStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

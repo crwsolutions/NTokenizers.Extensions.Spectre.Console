@@ -26,7 +26,7 @@ internal class MarkdownTableWriter(IAnsiConsole ansiConsole, MarkdownStyles mark
         await ansiConsole.Live(spectreTable)
         .StartAsync(async ctx =>
         {
-            await metadata.RegisterInlineTokenHandler(inlineToken =>
+            await metadata.ParseInlinesAsync(async inlineToken =>
             {
                 if (inlineToken.TokenType == MarkdownTokenType.TableAlignments)
                 {

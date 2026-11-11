@@ -50,8 +50,7 @@ public static class AnsiConsoleGoExtensions
     public static string WriteGo(this IAnsiConsole ansiConsole, Stream stream,
         GoStyles? goStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteGoAsync(ansiConsole, stream, goStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteGoAsync(ansiConsole, stream, goStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleGoExtensions
     public static void WriteGo(this IAnsiConsole ansiConsole, string value, GoStyles goStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteGoAsync(ansiConsole, stream, goStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteGoAsync(ansiConsole, stream, goStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

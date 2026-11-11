@@ -55,8 +55,7 @@ public static class AnsiConsoleXmlExtensions
     /// <returns>The input stream as a string.</returns>
     public static string WriteXml(this IAnsiConsole ansiConsole, Stream stream, XmlStyles? xmlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteXmlAsync(ansiConsole, stream, xmlStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteXmlAsync(ansiConsole, stream, xmlStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -76,7 +75,6 @@ public static class AnsiConsoleXmlExtensions
     public static void WriteXml(this IAnsiConsole ansiConsole, string value, XmlStyles xmlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteXmlAsync(ansiConsole, stream, xmlStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteXmlAsync(ansiConsole, stream, xmlStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

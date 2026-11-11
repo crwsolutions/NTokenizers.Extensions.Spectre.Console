@@ -50,8 +50,7 @@ public static class AnsiConsoleCExtensions
     public static string WriteC(this IAnsiConsole ansiConsole, Stream stream,
         CStyles? cStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteCAsync(ansiConsole, stream, cStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteCAsync(ansiConsole, stream, cStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -71,7 +70,6 @@ public static class AnsiConsoleCExtensions
     public static void WriteC(this IAnsiConsole ansiConsole, string value, CStyles cStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteCAsync(ansiConsole, stream, cStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteCAsync(ansiConsole, stream, cStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

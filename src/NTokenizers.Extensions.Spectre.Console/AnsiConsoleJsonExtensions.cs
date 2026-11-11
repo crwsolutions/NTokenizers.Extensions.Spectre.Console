@@ -57,8 +57,7 @@ public static class AnsiConsoleJsonExtensions
     /// <returns>The JSON content as a string.</returns>
     public static string WriteJson(this IAnsiConsole ansiConsole, Stream stream, JsonStyles? jsonStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteJsonAsync(ansiConsole, stream, jsonStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteJsonAsync(ansiConsole, stream, jsonStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -78,7 +77,6 @@ public static class AnsiConsoleJsonExtensions
     public static void WriteJson(this IAnsiConsole ansiConsole, string value, JsonStyles jsonStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteJsonAsync(ansiConsole, stream, jsonStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteJsonAsync(ansiConsole, stream, jsonStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

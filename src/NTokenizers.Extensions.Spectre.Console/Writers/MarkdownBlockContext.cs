@@ -111,7 +111,7 @@ internal sealed class MarkdownBlockContext
     /// Dispatches a markdown token, routing block tokens to dedicated handling (registering a
     /// child context for sub-document blocks) and inline/content tokens directly to the stream.
     /// </summary>
-    internal void WriteToken(MarkdownToken token)
+    internal async Task WriteTokenAsync(MarkdownToken token)
     {
         // Write the block separation that follows a closed paragraph, before the next token. It is
         // intentionally omitted when the paragraph is the last token (end of content, the break is
@@ -189,7 +189,7 @@ internal sealed class MarkdownBlockContext
                 break;
 
             case MarkdownTokenType.Heading:
-                WriteHeading(token);
+                await WriteHeading(token);
                 break;
 
             case MarkdownTokenType.HorizontalRule:
@@ -200,7 +200,7 @@ internal sealed class MarkdownBlockContext
                 break;
 
             case MarkdownTokenType.Blockquote:
-                WriteBlockquote(token);
+                await WriteBlockquote(token);
                 break;
 
             case MarkdownTokenType.ListStart:
@@ -218,19 +218,19 @@ internal sealed class MarkdownBlockContext
                 break;
 
             case MarkdownTokenType.UnorderedListItem:
-                WriteListItem(token, ordered: false);
+                await WriteListItem(token, ordered: false);
                 break;
 
             case MarkdownTokenType.OrderedListItem:
-                WriteListItem(token, ordered: true);
+                await WriteListItem(token, ordered: true);
                 break;
 
             case MarkdownTokenType.CodeBlock:
-                WriteFencedCodeBlock(token);
+                await WriteFencedCodeBlock(token);
                 break;
 
             case MarkdownTokenType.IndentedCodeBlock:
-                WriteIndentedCodeBlock(token);
+                await WriteIndentedCodeBlock(token);
                 break;
 
             case MarkdownTokenType.Table:
@@ -298,10 +298,10 @@ internal sealed class MarkdownBlockContext
         return _owner.MarkdownStyles.DefaultStyle;
     }
 
-    // A heading is a sub-document: the heading text streams through the registered handler. The
-    // heading renders directly in the stream; its underline (and level-1 bold decoration) is
+    // A heading is a sub-document: the heading text streams through the ParseInlinesAsync handler.
+    // The heading renders directly in the stream; its underline (and level-1 bold decoration) is
     // written on commit, when the full text length is known.
-    private void WriteHeading(MarkdownToken token)
+    private async Task WriteHeading(MarkdownToken token)
     {
         if (token.Metadata is not HeadingMetadata meta)
         {
@@ -319,9 +319,11 @@ internal sealed class MarkdownBlockContext
         var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose());
         context.InitializeHeading(meta.Level, headingStyle);
 
-        meta.RegisterInlineTokenHandler(
-            sub => context.WriteToken(sub),
-            () => context.Commit());
+        await meta.ParseInlinesAsync(async sub =>
+        {
+            await context.WriteTokenAsync(sub);
+        });
+        context.Commit();
     }
 
     // Internal initializer so the heading state (private fields) can be set by the owning context
@@ -368,7 +370,7 @@ internal sealed class MarkdownBlockContext
     // A blockquote is a sub-document: the quoted content is a full markdown sub-stream. The
     // child context (kind Quote) pushes a border frame, so every line of its content (and its
     // nested blocks) is bordered.
-    private void WriteBlockquote(MarkdownToken token)
+    private async Task WriteBlockquote(MarkdownToken token)
     {
         if (token.Metadata is not BlockquoteMetadata meta)
         {
@@ -378,16 +380,18 @@ internal sealed class MarkdownBlockContext
         var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose(), kind: BlockKind.Quote);
         _pendingBlockBreak = true;
 
-        meta.RegisterInlineTokenHandler(
-            sub => context.WriteToken(sub),
-            () => context.Commit());
+        await meta.ParseInlinesAsync(async sub =>
+        {
+            await context.WriteTokenAsync(sub);
+        });
+        context.Commit();
     }
 
-    // A list item is a sub-document: the item's content streams through the registered handler.
-    // The child context (kind Item) owns the marker frame (pushed in its constructor, popped on
-    // commit), so every line of the item's content (and its nested blocks) is indented to the
-    // marker.
-    private void WriteListItem(MarkdownToken token, bool ordered)
+    // A list item is a sub-document: the item's content streams through the ParseInlinesAsync
+    // handler. The child context (kind Item) owns the marker frame (pushed in its constructor,
+    // popped on commit), so every line of the item's content (and its nested blocks) is indented
+    // to the marker.
+    private async Task WriteListItem(MarkdownToken token, bool ordered)
     {
         string? marker = null;
         Style? markerStyle = null;
@@ -410,15 +414,17 @@ internal sealed class MarkdownBlockContext
         var context = new MarkdownBlockContext(
             _owner, _stream, kind: BlockKind.Item, itemMarker: marker, itemMarkerStyle: markerStyle);
 
-        (token.Metadata as InlineMetadata<MarkdownToken>)!.RegisterInlineTokenHandler(
-            sub => context.WriteToken(sub),
-            () => context.Commit());
+        await (token.Metadata as InlineMetadata<MarkdownToken>)!.ParseInlinesAsync(async sub =>
+        {
+            await context.WriteTokenAsync(sub);
+        });
+        context.Commit();
     }
 
     // A fenced code block is a sub-document: the code streams through the registered handler. The
     // language label is written (outside the border) before the child context (kind Code) pushes
     // the code border frame, so the code content is bordered.
-    private void WriteFencedCodeBlock(MarkdownToken token)
+    private async Task WriteFencedCodeBlock(MarkdownToken token)
     {
         if (token.Metadata is not ICodeBlockMetadata meta)
         {
@@ -431,12 +437,12 @@ internal sealed class MarkdownBlockContext
         _stream.Finish();
 
         var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose(), kind: BlockKind.Code);
-        _owner.WireFencedCode(meta, _stream, context);
+        await _owner.WireFencedCode(meta, _stream, context);
     }
 
     // An indented code block is a sub-document: its (plain text) content streams through the
-    // registered handler. It renders like a fenced code block with the label "code:".
-    private void WriteIndentedCodeBlock(MarkdownToken token)
+    // ParseInlinesAsync handler. It renders like a fenced code block with the label "code:".
+    private async Task WriteIndentedCodeBlock(MarkdownToken token)
     {
         if (token.Metadata is not IndentedCodeBlockMetadata meta)
         {
@@ -448,9 +454,11 @@ internal sealed class MarkdownBlockContext
 
         var context = new MarkdownBlockContext(_owner, _stream, TakeRegionClose(), kind: BlockKind.Code);
 
-        meta.RegisterInlineTokenHandler(
-            sub => context.WriteToken(sub),
-            () => context.Commit());
+        await meta.ParseInlinesAsync(async sub =>
+        {
+            await context.WriteTokenAsync(sub);
+        });
+        context.Commit();
     }
 
     // A table renders in its own live region that grows as the tokenizer streams the table
@@ -466,7 +474,7 @@ internal sealed class MarkdownBlockContext
 
         _pendingBlockBreak = true;
         var writer = new MarkdownTableWriter(_owner.Console, _owner.MarkdownStyles);
-        _ = Task.Run(() => writer.WriteAsync(meta));
+        writer.WriteAsync(meta).GetAwaiter().GetResult();
     }
 
     // The region owner hands the region-close to the first sub-document block it dispatches (the

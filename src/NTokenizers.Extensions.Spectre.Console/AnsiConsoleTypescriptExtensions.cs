@@ -55,8 +55,7 @@ public static class AnsiConsoleTypescriptExtensions
     /// <returns>The input stream as a string.</returns>
     public static string WriteTypescript(this IAnsiConsole ansiConsole, Stream stream, TypescriptStyles? typescriptStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteTypescriptAsync(ansiConsole, stream, typescriptStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteTypescriptAsync(ansiConsole, stream, typescriptStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -76,7 +75,6 @@ public static class AnsiConsoleTypescriptExtensions
     public static void WriteTypescript(this IAnsiConsole ansiConsole, string value, TypescriptStyles typescriptStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteTypescriptAsync(ansiConsole, stream, typescriptStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteTypescriptAsync(ansiConsole, stream, typescriptStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

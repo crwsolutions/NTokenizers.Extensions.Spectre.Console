@@ -55,8 +55,7 @@ public static class AnsiConsoleCSharpExtensions
     /// <returns>The parsed string.</returns>
     public static string WriteCSharp(this IAnsiConsole ansiConsole, Stream stream, CSharpStyles? csharpStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteCSharpAsync(ansiConsole, stream, csharpStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -76,7 +75,6 @@ public static class AnsiConsoleCSharpExtensions
     public static void WriteCSharp(this IAnsiConsole ansiConsole, string value, CSharpStyles csharpStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteCSharpAsync(ansiConsole, stream, csharpStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteCSharpAsync(ansiConsole, stream, csharpStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }

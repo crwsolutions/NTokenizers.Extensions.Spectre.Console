@@ -91,7 +91,7 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
             MarkdownTokenType.UnorderedListItem or
             MarkdownTokenType.ListEnd)
         {
-            _rootContext!.WriteToken(token);
+            await _rootContext!.WriteTokenAsync(token);
             return;
         }
 
@@ -140,7 +140,7 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
             case MarkdownTokenType.ListStart:
             case MarkdownTokenType.CodeBlock:
             case MarkdownTokenType.IndentedCodeBlock:
-                OpenBlock(token);
+                await OpenBlock(token);
                 break;
 
             case MarkdownTokenType.Table:
@@ -180,7 +180,7 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
     /// streams forward-only; its final line is finished by <see cref="CompleteBlock"/> when the
     /// block completes.
     /// </summary>
-    private void OpenBlock(MarkdownToken token)
+    private async Task OpenBlock(MarkdownToken token)
     {
         // A root block that follows a previous element is separated by an explicit blank line (the
         // previous element ends the stream with exactly one line break; this adds the blank line).
@@ -194,7 +194,7 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
         // The root context owns the stream: it hands the completion signal to the outermost
         // sub-document block, or keeps it for a flat block (list / horizontal rule).
         _rootContext = new MarkdownBlockContext(this, stream, CompleteBlock, ownsRegion: true);
-        _rootContext.WriteToken(token);
+        await _rootContext.WriteTokenAsync(token);
     }
 
     /// <summary>
@@ -248,100 +248,108 @@ internal class MarkdownWriter(IAnsiConsole ansiConsole)
     /// Wires a fenced code block's language-specific tokens into the shared stream, selecting the
     /// matching language writer (the same language set the previous implementation dispatched over).
     /// Each token is written to the stream as it arrives, so the code content streams forward-only
-    /// under the code block's border. The block's <c>onInlinesCompleted</c> callback commits the
-    /// context.
+    /// under the code block's border. The block is committed after the sub-parse completes.
     /// </summary>
-    internal Task WireFencedCode(ICodeBlockMetadata meta, MarkdownStream stream, MarkdownBlockContext context)
+    internal async Task WireFencedCode(ICodeBlockMetadata meta, MarkdownStream stream, MarkdownBlockContext context)
     {
-        Action commit = () => context.Commit();
         if (meta is CSharpCodeBlockMetadata csharpMeta)
         {
-            var writer = new CSharpWriter(_ansiConsole, MarkdownStyles.CSharpStyles);
-            return csharpMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(csharpMeta, new CSharpWriter(_ansiConsole, MarkdownStyles.CSharpStyles), stream, context);
         }
-        if (meta is XmlCodeBlockMetadata xmlMeta)
+        else if (meta is XmlCodeBlockMetadata xmlMeta)
         {
-            var writer = new XmlWriter(_ansiConsole, MarkdownStyles.XmlStyles);
-            return xmlMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(xmlMeta, new XmlWriter(_ansiConsole, MarkdownStyles.XmlStyles), stream, context);
         }
-        if (meta is HtmlCodeBlockMetadata htmlMeta)
+        else if (meta is HtmlCodeBlockMetadata htmlMeta)
         {
-            var writer = new HtmlWriter(_ansiConsole, MarkdownStyles.HtmlStyles);
-            return htmlMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(htmlMeta, new HtmlWriter(_ansiConsole, MarkdownStyles.HtmlStyles), stream, context);
         }
-        if (meta is TypeScriptCodeBlockMetadata tsMeta)
+        else if (meta is TypeScriptCodeBlockMetadata tsMeta)
         {
-            var writer = new TypescriptWriter(_ansiConsole, MarkdownStyles.TypescriptStyles);
-            return tsMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(tsMeta, new TypescriptWriter(_ansiConsole, MarkdownStyles.TypescriptStyles), stream, context);
         }
-        if (meta is CssCodeBlockMetadata cssMeta)
+        else if (meta is CssCodeBlockMetadata cssMeta)
         {
-            var writer = new CssWriter(_ansiConsole, MarkdownStyles.CssStyles);
-            return cssMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(cssMeta, new CssWriter(_ansiConsole, MarkdownStyles.CssStyles), stream, context);
         }
-        if (meta is JsonCodeBlockMetadata jsonMeta)
+        else if (meta is JsonCodeBlockMetadata jsonMeta)
         {
-            var writer = new JsonWriter(_ansiConsole, MarkdownStyles.JsonStyles);
-            return jsonMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(jsonMeta, new JsonWriter(_ansiConsole, MarkdownStyles.JsonStyles), stream, context);
         }
-        if (meta is YamlCodeBlockMetadata yamlMeta)
+        else if (meta is YamlCodeBlockMetadata yamlMeta)
         {
-            var writer = new YamlWriter(_ansiConsole, MarkdownStyles.YamlStyles);
-            return yamlMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(yamlMeta, new YamlWriter(_ansiConsole, MarkdownStyles.YamlStyles), stream, context);
         }
-        if (meta is TomlCodeBlockMetadata tomlMeta)
+        else if (meta is TomlCodeBlockMetadata tomlMeta)
         {
-            var writer = new TomlWriter(_ansiConsole, MarkdownStyles.TomlStyles);
-            return tomlMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(tomlMeta, new TomlWriter(_ansiConsole, MarkdownStyles.TomlStyles), stream, context);
         }
-        if (meta is SqlCodeBlockMetadata sqlMeta)
+        else if (meta is SqlCodeBlockMetadata sqlMeta)
         {
-            var writer = new SqlWriter(_ansiConsole, MarkdownStyles.SqlStyles);
-            return sqlMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(sqlMeta, new SqlWriter(_ansiConsole, MarkdownStyles.SqlStyles), stream, context);
         }
-        if (meta is CCodeBlockMetadata cMeta)
+        else if (meta is CCodeBlockMetadata cMeta)
         {
-            var writer = new CWriter(_ansiConsole, MarkdownStyles.CStyles);
-            return cMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(cMeta, new CWriter(_ansiConsole, MarkdownStyles.CStyles), stream, context);
         }
-        if (meta is CppCodeBlockMetadata cppMeta)
+        else if (meta is CppCodeBlockMetadata cppMeta)
         {
-            var writer = new CppWriter(_ansiConsole, MarkdownStyles.CppStyles);
-            return cppMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(cppMeta, new CppWriter(_ansiConsole, MarkdownStyles.CppStyles), stream, context);
         }
-        if (meta is GoCodeBlockMetadata goMeta)
+        else if (meta is GoCodeBlockMetadata goMeta)
         {
-            var writer = new GoWriter(_ansiConsole, MarkdownStyles.GoStyles);
-            return goMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(goMeta, new GoWriter(_ansiConsole, MarkdownStyles.GoStyles), stream, context);
         }
-        if (meta is JavaCodeBlockMetadata javaMeta)
+        else if (meta is JavaCodeBlockMetadata javaMeta)
         {
-            var writer = new JavaWriter(_ansiConsole, MarkdownStyles.JavaStyles);
-            return javaMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(javaMeta, new JavaWriter(_ansiConsole, MarkdownStyles.JavaStyles), stream, context);
         }
-        if (meta is KotlinCodeBlockMetadata kotlinMeta)
+        else if (meta is KotlinCodeBlockMetadata kotlinMeta)
         {
-            var writer = new KotlinWriter(_ansiConsole, MarkdownStyles.KotlinStyles);
-            return kotlinMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(kotlinMeta, new KotlinWriter(_ansiConsole, MarkdownStyles.KotlinStyles), stream, context);
         }
-        if (meta is PythonCodeBlockMetadata pythonMeta)
+        else if (meta is PythonCodeBlockMetadata pythonMeta)
         {
-            var writer = new PythonWriter(_ansiConsole, MarkdownStyles.PythonStyles);
-            return pythonMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(pythonMeta, new PythonWriter(_ansiConsole, MarkdownStyles.PythonStyles), stream, context);
         }
-        if (meta is RustCodeBlockMetadata rustMeta)
+        else if (meta is RustCodeBlockMetadata rustMeta)
         {
-            var writer = new RustWriter(_ansiConsole, MarkdownStyles.RustStyles);
-            return rustMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(rustMeta, new RustWriter(_ansiConsole, MarkdownStyles.RustStyles), stream, context);
         }
-        if (meta is SwiftCodeBlockMetadata swiftMeta)
+        else if (meta is SwiftCodeBlockMetadata swiftMeta)
         {
-            var writer = new SwiftWriter(_ansiConsole, MarkdownStyles.SwiftStyles);
-            return swiftMeta.RegisterInlineTokenHandler(t => writer.WriteToStream(stream, t), commit);
+            await WireLanguage(swiftMeta, new SwiftWriter(_ansiConsole, MarkdownStyles.SwiftStyles), stream, context);
         }
+        else
+        {
+            // Generic fallback: plain markdown-token code block.
+            await WireGeneric(meta, stream, context);
+        }
+    }
 
-        // Generic fallback: plain markdown-token code block.
+    private Task WireGeneric(ICodeBlockMetadata meta, MarkdownStream stream, MarkdownBlockContext context)
+    {
         var genericWriter = new GenericWriter(_ansiConsole);
-        return ((InlineMetadata<MarkdownToken>)meta).RegisterInlineTokenHandler(t => genericWriter.WriteToStream(stream, t), commit);
+        return ((InlineMetadata<MarkdownToken>)meta).ParseInlinesAsync(t =>
+        {
+            genericWriter.WriteToStream(stream, t);
+            return Task.CompletedTask;
+        }).ContinueWith(t =>
+        {
+            t.Exception?.Handle(e => false);
+            context.Commit();
+        });
+    }
+
+    private async Task WireLanguage<TToken, TTokentype>(InlineMetadata<TToken> meta, BaseInlineWriter<TToken, TTokentype> writer, MarkdownStream stream, MarkdownBlockContext context)
+        where TToken : IToken<TTokentype>
+        where TTokentype : Enum
+    {
+        await meta.ParseInlinesAsync(t =>
+        {
+            writer.WriteToStream(stream, t);
+            return Task.CompletedTask;
+        });
+        context.Commit();
     }
 }

@@ -56,8 +56,7 @@ public static class AnsiConsoleHtmlExtensions
     /// <returns>The input stream as a string.</returns>
     public static string WriteHtml(this IAnsiConsole ansiConsole, Stream stream, HtmlStyles? htmlStyles = null, Encoding? encoding = null, CancellationToken ct = default)
     {
-        var t = Task.Run(() => WriteHtmlAsync(ansiConsole, stream, htmlStyles, encoding, ct), ct);
-        return t.GetAwaiter().GetResult();
+        return WriteHtmlAsync(ansiConsole, stream, htmlStyles, encoding, ct).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -77,7 +76,6 @@ public static class AnsiConsoleHtmlExtensions
     public static void WriteHtml(this IAnsiConsole ansiConsole, string value, HtmlStyles htmlStyles)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(value));
-        var t = Task.Run(() => WriteHtmlAsync(ansiConsole, stream, htmlStyles, Encoding.UTF8, default));
-        t.GetAwaiter().GetResult();
+        WriteHtmlAsync(ansiConsole, stream, htmlStyles, Encoding.UTF8, default).GetAwaiter().GetResult();
     }
 }
